@@ -6,91 +6,379 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>565</width>
+    <height>407</height>
    </rect>
   </property>
+  <property name="acceptDrops">
+   <bool>false</bool>
+  </property>
   <property name="windowTitle">
-   <string>MasterView</string>
+   <string>图书借阅管理系统</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="styleSheet">
+    <string notr="true">QWidget#centralWidget {
+    background-color: #f5f5f5;  /* 浅灰色背景 */
+}</string>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>PushButton</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="styleSheet">
-         <string notr="true">font-size: 16px;
-font-weight: bold;
-color: #2c3e50;
-padding: 20px;</string>
-        </property>
-        <property name="text">
-         <string>图书借阅管理系统</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="text">
-         <string>PushButton</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QWidget" name="leftNavWidget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>70</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>220</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QWidget#leftNavWidget {
+    background-color: white;
+    border: 2px solid black;  /* 红色边框 */
+    border-radius: 8px;         /* 圆角 */
+    padding: 0px;
+}</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QPushButton" name="btnBookManage">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton {
+    background-color: transparent;
+    color: #333333;
+    border: none;
+    border-radius: 0px;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+    qproperty-alignment: AlignLeft | AlignVCenter;
+    min-height: 60px;
+    border-bottom: 1px solid #f0f0f0;  /* 底部浅灰色分隔线 */
+}
+
+QPushButton:hover {
+    background-color: #f8f8f8;
+    color: #ff4d4f;
+}
+
+QPushButton:checked {
+    background-color: #ff4d4f;
+    color: white;
+    border-left: 4px solid #ff4d4f;
+}</string>
+         </property>
+         <property name="text">
+          <string>图书管理</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnReaderManage">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton {
+    background-color: transparent;
+    color: #333333;
+    border: none;
+    border-radius: 0px;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+    qproperty-alignment: AlignLeft | AlignVCenter;
+    min-height: 60px;
+    border-bottom: 1px solid #f0f0f0;  /* 底部浅灰色分隔线 */
+}
+
+QPushButton:hover {
+    background-color: #f8f8f8;
+    color: #ff4d4f;
+}
+
+QPushButton:checked {
+    background-color: #ff4d4f;
+    color: white;
+    border-left: 4px solid #ff4d4f;
+}</string>
+         </property>
+         <property name="text">
+          <string>读者管理</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnBorrowManage">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>借阅管理</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnReportManage">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>统计报表</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnExitSystem">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton#btExit {
+    background-color: transparent;
+    color: #ff4d4f;  /* 退出按钮用红色文字 */
+    border: none;
+    border-radius: 0px;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+    qproperty-alignment: AlignLeft | AlignVCenter;
+    min-height: 60px;
+    border-bottom: none;  /* 移除底部边框 */
+    border-top: 1px solid #f0f0f0;  /* 顶部添加分隔线 */
+}
+
+QPushButton#btExit:hover {
+    background-color: #fff2f0;
+    color: #ff4d4f;
+}</string>
+         </property>
+         <property name="text">
+          <string>退出系统</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </item>
     <item>
-     <widget class="QStackedWidget" name="stackedWidget">
-      <widget class="QWidget" name="page_3"/>
-      <widget class="QWidget" name="page_4"/>
+     <widget class="QWidget" name="rightContentWidget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QStackedWidget" name="stackedWidget">
+         <property name="styleSheet">
+          <string notr="true">QStackedWidget {
+    background-color: white;
+    border: 2px solid #f0f0f0;
+    border-radius: 8px;
+}</string>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="pageBooks">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QLineEdit" name="BookSearchlineEdit">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="readOnly">
+                <bool>false</bool>
+               </property>
+               <property name="placeholderText">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBookQuery">
+               <property name="text">
+                <string>查询</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBookAdd">
+               <property name="text">
+                <string>添加</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBookDelete">
+               <property name="text">
+                <string>删除</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBookModify">
+               <property name="text">
+                <string>修改</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_2">
+               <property name="text">
+                <string>借阅</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTableView" name="BooktableView"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="pageReaders">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <item>
+              <widget class="QLineEdit" name="ReaderSearchlineEdit"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnReaderQuery">
+               <property name="text">
+                <string>查询</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnReaderAdd">
+               <property name="text">
+                <string>添加</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnReaderDelete">
+               <property name="text">
+                <string>删除</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnReaderModify">
+               <property name="text">
+                <string>修改</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTableView" name="ReadertableView"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="pageBorrow">
+          <widget class="QPushButton" name="btnReaderDelete_2">
+           <property name="geometry">
+            <rect>
+             <x>330</x>
+             <y>10</y>
+             <width>56</width>
+             <height>18</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>归还</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="btnReaderQuery_2">
+           <property name="geometry">
+            <rect>
+             <x>170</x>
+             <y>10</y>
+             <width>56</width>
+             <height>18</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>查询记录</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="ReaderSearchlineEdit_2">
+           <property name="geometry">
+            <rect>
+             <x>11</x>
+             <y>11</y>
+             <width>114</width>
+             <height>19</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>18</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>
