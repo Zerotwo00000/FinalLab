@@ -7,7 +7,7 @@ Login::Login(QWidget *parent)
 {
     ui->setupUi(this);
 }
-
+//第一次提交
 Login::~Login()
 {
     delete ui;
