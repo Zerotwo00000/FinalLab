@@ -264,9 +264,9 @@ QPushButton#btExit:hover {
           <number>0</number>
          </property>
          <widget class="QWidget" name="pageBooks">
-          <layout class="QVBoxLayout" name="verticalLayout_5">
+          <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
               <widget class="QLineEdit" name="BookSearchlineEdit">
                <property name="text">
@@ -305,13 +305,6 @@ QPushButton#btExit:hover {
               <widget class="QPushButton" name="btnBookModify">
                <property name="text">
                 <string>修改</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btnBookBorrowed">
-               <property name="text">
-                <string>借阅</string>
                </property>
               </widget>
              </item>
@@ -365,9 +358,9 @@ QPushButton#btExit:hover {
           </layout>
          </widget>
          <widget class="QWidget" name="pageBorrow">
-          <layout class="QVBoxLayout" name="verticalLayout_8">
+          <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
               <widget class="QLineEdit" name="BorrowSearchlineEdit"/>
              </item>
@@ -382,6 +375,13 @@ QPushButton#btExit:hover {
               <widget class="QPushButton" name="btnBorrowDelete">
                <property name="text">
                 <string>删除</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBorrowed">
+               <property name="text">
+                <string>借阅</string>
                </property>
               </widget>
              </item>

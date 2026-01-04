@@ -12,17 +12,20 @@ SOURCES += \
     bookeditview.cpp \
     login.cpp \
     main.cpp \
-    masterview.cpp
+    masterview.cpp \
+    readereditview.cpp
 
 HEADERS += \
     bookeditview.h \
     login.h \
-    masterview.h
+    masterview.h \
+    readereditview.h
 
 FORMS += \
     bookeditview.ui \
     login.ui \
-    masterview.ui
+    masterview.ui \
+    readereditview.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
