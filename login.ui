@@ -89,6 +89,9 @@ padding: 20px;</string>
 border: 1px solid #bdc3c7;
 border-radius: 5px;</string>
            </property>
+           <property name="text">
+            <string>admin</string>
+           </property>
            <property name="placeholderText">
             <string>请输入用户名</string>
            </property>
@@ -107,6 +110,9 @@ border-radius: 5px;</string>
             <string notr="true">background-color: #ecf0f1;
 border: 1px solid #bdc3c7;
 border-radius: 5px;</string>
+           </property>
+           <property name="text">
+            <string>admin</string>
            </property>
            <property name="echoMode">
             <enum>QLineEdit::EchoMode::Password</enum>

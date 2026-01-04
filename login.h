@@ -15,9 +15,14 @@ public:
     explicit Login(QWidget *parent = nullptr);
     ~Login();
 
+signals:
+    void loginSuccess();  // 添加登录成功信号
+
+private slots:
+    void on_pushButtonLogin_clicked();
+
 private:
     Ui::Login *ui;
 };
 
 #endif // LOGIN_H
-//第一次提交

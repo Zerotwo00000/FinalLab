@@ -14,10 +14,17 @@ class MasterView : public QMainWindow
     Q_OBJECT
 
 public:
-    MasterView(QWidget *parent = nullptr);
+    explicit MasterView(QWidget *parent = nullptr);
     ~MasterView();
+
+private slots:
+    void on_btnExitSystem_clicked();
 
 private:
     Ui::MasterView *ui;
+
+    void setupNavigation();
+    void setupButtonGroups();
 };
+
 #endif // MASTERVIEW_H
