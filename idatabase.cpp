@@ -22,10 +22,23 @@ bool IDatabase::initBookModel()
     bookTabModel = new QSqlTableModel(this,database);
     bookTabModel->setTable("books");
     bookTabModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    bookTabModel->setSort(bookTabModel->fieldIndex("name"),Qt::AscendingOrder);
+    bookTabModel->setSort(bookTabModel->fieldIndex("book_id"),Qt::AscendingOrder);
     if(!(bookTabModel->select()))
         return false;
 
     theBookSelection = new QItemSelectionModel(bookTabModel);
+    return true;
+}
+
+bool IDatabase::initReaderModel()
+{
+    readerTabModel = new QSqlTableModel(this,database);
+    readerTabModel->setTable("readers");
+    readerTabModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    readerTabModel->setSort(readerTabModel->fieldIndex("reader_id"),Qt::AscendingOrder);
+    if(!(readerTabModel->select()))
+        return false;
+
+    theReaderSelection = new QItemSelectionModel(readerTabModel);
     return true;
 }
