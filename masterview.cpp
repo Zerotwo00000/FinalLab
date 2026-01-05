@@ -40,6 +40,11 @@ MasterView::MasterView(QWidget *parent)
     ui->ReadertableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->ReadertableView->setAlternatingRowColors(true);
 
+    ui->BorrowtableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->BorrowtableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->BorrowtableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->BorrowtableView->setAlternatingRowColors(true);
+
     IDatabase &iDatabase = IDatabase::getInstance();
     if (iDatabase.initBookModel()){
         ui->BooktableView->setModel(iDatabase.bookTabModel);
@@ -49,6 +54,11 @@ MasterView::MasterView(QWidget *parent)
     if (iDatabase.initReaderModel()){
         ui->ReadertableView->setModel(iDatabase.readerTabModel);
         ui->ReadertableView->setSelectionModel(iDatabase.theReaderSelection);
+    }
+
+    if (iDatabase.initBorrowModel()){
+        ui->BorrowtableView->setModel(iDatabase.borrowTabModel);
+        ui->BorrowtableView->setSelectionModel(iDatabase.theBorrowSelection);
     }
 
 

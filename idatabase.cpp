@@ -42,3 +42,16 @@ bool IDatabase::initReaderModel()
     theReaderSelection = new QItemSelectionModel(readerTabModel);
     return true;
 }
+
+bool IDatabase::initBorrowModel()
+{
+    borrowTabModel = new QSqlTableModel(this,database);
+    borrowTabModel->setTable("borrow_records");
+    borrowTabModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    borrowTabModel->setSort(borrowTabModel->fieldIndex("borrow_id"),Qt::AscendingOrder);
+    if(!(borrowTabModel->select()))
+        return false;
+
+    theBorrowSelection = new QItemSelectionModel(borrowTabModel);
+    return true;
+}
