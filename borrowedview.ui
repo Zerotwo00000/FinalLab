@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>500</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,17 +20,191 @@
     font-size: 14px;
 }</string>
   </property>
-  <widget class="QLabel" name="labelBorrowDate">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>180</y>
-     <width>51</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel {
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>121</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>152</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="1">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelBorrowedReaderNo">
+       <property name="styleSheet">
+        <string notr="true">QLabel {
+    font-weight: bold;
+    color: #333;
+    padding: 5px 0px;
+}
+
+</string>
+       </property>
+       <property name="text">
+        <string>读者编号：*</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="lineEditBorrowedReaderNo">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit, QComboBox {
+    padding: 8px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    background-color: white;
+    min-height: 20px;
+}
+
+QLineEdit:focus, QComboBox:focus {
+    border-color: #409eff;
+    outline: none;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid #666;
+    width: 12px;
+    height: 12px;
+}QLineEdit, QComboBox {
+    padding: 8px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    background-color: white;
+    min-height: 20px;
+}
+
+QLineEdit:focus, QComboBox:focus {
+    border-color: #409eff;
+    outline: none;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid #666;
+    width: 12px;
+    height: 12px;
+}</string>
+       </property>
+       <property name="placeholderText">
+        <string>请输入读者编号</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelBorrowedBookId">
+       <property name="styleSheet">
+        <string notr="true">QLabel {
+    font-weight: bold;
+    color: #333;
+    padding: 5px 0px;
+}
+
+</string>
+       </property>
+       <property name="text">
+        <string>ISBN：*</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="2">
+      <widget class="QLineEdit" name="lineEditBorrowedBookId">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit, QComboBox {
+    padding: 8px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    background-color: white;
+    min-height: 20px;
+}
+
+QLineEdit:focus, QComboBox:focus {
+    border-color: #409eff;
+    outline: none;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid #666;
+    width: 12px;
+    height: 12px;
+}QLineEdit, QComboBox {
+    padding: 8px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    background-color: white;
+    min-height: 20px;
+}
+
+QLineEdit:focus, QComboBox:focus {
+    border-color: #409eff;
+    outline: none;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid #666;
+    width: 12px;
+    height: 12px;
+}</string>
+       </property>
+       <property name="placeholderText">
+        <string>请输入ISBN号</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelBorrowDate">
+       <property name="styleSheet">
+        <string notr="true">QLabel {
     font-weight: bold;
     color: #333;
     padding: 5px 0px;
@@ -40,22 +214,19 @@
 QLabel[text*=&quot;*&quot;] {
     color: #f56c6c;
 }</string>
-   </property>
-   <property name="text">
-    <string>借阅日期：</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelDueDate">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>220</y>
-     <width>41</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel {
+       </property>
+       <property name="text">
+        <string>借阅日期：</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="2">
+      <widget class="QDateEdit" name="dateEditBorrowDate"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="labelDueDate">
+       <property name="styleSheet">
+        <string notr="true">QLabel {
     font-weight: bold;
     color: #333;
     padding: 5px 0px;
@@ -65,133 +236,107 @@ QLabel[text*=&quot;*&quot;] {
 QLabel[text*=&quot;*&quot;] {
     color: #f56c6c;
 }</string>
-   </property>
-   <property name="text">
-    <string>应还日期：</string>
-   </property>
-  </widget>
-  <widget class="QDateEdit" name="dateEditBorrowDate">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>190</y>
-     <width>110</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QDateEdit" name="dateEditDueDate">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>220</y>
-     <width>110</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelBorrowedReaderNo">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>110</y>
-     <width>51</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel {
-    font-weight: bold;
-    color: #333;
-    padding: 5px 0px;
+       </property>
+       <property name="text">
+        <string>应还日期：</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QDateEdit" name="dateEditDueDate"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QPushButton" name="btnBorrowedCancel">
+       <property name="styleSheet">
+        <string notr="true">QPushButton#btnBorrowedCancel {
+    background-color: #909399;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-weight: 500;
 }
 
-/* 必填字段标签样式 */
-QLabel[text*=&quot;*&quot;] {
-    color: #f56c6c;
-}</string>
-   </property>
-   <property name="text">
-    <string>读者编号：*</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="lineEditBorrowedReaderNo">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>110</y>
-     <width>113</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>请输入读者编号</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelBorrowedBookId">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>150</y>
-     <width>41</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel {
-    font-weight: bold;
-    color: #333;
-    padding: 5px 0px;
+QPushButton#btnBorrowedCancell:hover {
+    background-color: #a6a9ad;
 }
 
-/* 必填字段标签样式 */
-QLabel[text*=&quot;*&quot;] {
-    color: #f56c6c;
+QPushButton#btnBorrowedCancel:pressed {
+    background-color: #82848a;
 }</string>
-   </property>
-   <property name="text">
-    <string>ISBN：*</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="lineEditBorrowedBookId">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>150</y>
-     <width>113</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>请输入ISBN号</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>260</y>
-     <width>56</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>取消</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_2">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>260</y>
-     <width>56</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>确定</string>
-   </property>
-  </widget>
+       </property>
+       <property name="text">
+        <string>取消</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="2">
+      <widget class="QPushButton" name="btnBorrowedOK">
+       <property name="styleSheet">
+        <string notr="true">QPushButton#btnBorrowedOK {
+    background-color: #409eff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-weight: 500;
+}
+
+QPushButton#pushButtonOk:hover {
+    background-color: #66b1ff;
+}
+
+QPushButton#pushButtonOk:pressed {
+    background-color: #3a8ee6;
+}</string>
+       </property>
+       <property name="text">
+        <string>确定</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="2">
+    <spacer name="horizontalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>151</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="1">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>120</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

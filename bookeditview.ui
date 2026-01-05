@@ -312,7 +312,7 @@ QComboBox::down-arrow {
        </property>
       </widget>
      </item>
-     <item row="6" column="1" colspan="2">
+     <item row="6" column="1">
       <widget class="QSpinBox" name="spinBoxTotalCopies">
        <property name="suffix">
         <string>本</string>
@@ -329,7 +329,7 @@ QComboBox::down-arrow {
        </property>
       </widget>
      </item>
-     <item row="7" column="1" colspan="2">
+     <item row="7" column="1">
       <widget class="QSpinBox" name="spinBoxAvailableCopies">
        <property name="suffix">
         <string>本</string>
@@ -367,6 +367,24 @@ QLabel[text*=&quot;*&quot;] {
      </item>
      <item row="9" column="0">
       <widget class="QPushButton" name="BtnBookCancel">
+       <property name="styleSheet">
+        <string notr="true">QPushButton#BtnBookCancel {
+    background-color: #909399;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-weight: 500;
+}
+
+QPushButton#BtnBookCancel:hover {
+    background-color: #a6a9ad;
+}
+
+QPushButton#BtnBookCancel:pressed {
+    background-color: #82848a;
+}</string>
+       </property>
        <property name="text">
         <string>取消</string>
        </property>
@@ -388,7 +406,7 @@ QLabel[text*=&quot;*&quot;] {
      <item row="9" column="2">
       <widget class="QPushButton" name="BtnBookOK">
        <property name="styleSheet">
-        <string notr="true">QPushButton#pushButtonOk {
+        <string notr="true">QPushButton#BtnBookOK {
     background-color: #409eff;
     color: white;
     border: none;
