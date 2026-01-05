@@ -1,12 +1,14 @@
 #include "masterview.h"
 #include "ui_masterview.h"
 #include "bookeditview.h"  // 包含图书编辑界面
+#include "readereditview.h"  // 包含读者编辑界面
 #include <QButtonGroup>
 
 MasterView::MasterView(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MasterView)
     , bookEditDialog(nullptr)  // 初始化为nullptr
+    , readerEditDialog(nullptr)  // 初始化为nullptr
 {
     ui->setupUi(this);
 
@@ -28,6 +30,9 @@ MasterView::~MasterView()
     delete ui;
     if (bookEditDialog) {
         delete bookEditDialog;
+    }
+    if (readerEditDialog) {
+        delete readerEditDialog;
     }
 }
 
@@ -57,6 +62,12 @@ void MasterView::setupConnections()
     connect(ui->btnBookModify, &QPushButton::clicked, this, &MasterView::on_btnBookModify_clicked);
     connect(ui->btnBookQuery, &QPushButton::clicked, this, &MasterView::on_btnBookQuery_clicked);
     connect(ui->btnBookDelete, &QPushButton::clicked, this, &MasterView::on_btnBookDelete_clicked);
+
+    // 连接读者管理按钮
+    connect(ui->btnReaderAdd, &QPushButton::clicked, this, &MasterView::on_btnReaderAdd_clicked);
+    connect(ui->btnReaderModify, &QPushButton::clicked, this, &MasterView::on_btnReaderModify_clicked);
+    connect(ui->btnReaderQuery, &QPushButton::clicked, this, &MasterView::on_btnReaderQuery_clicked);
+    connect(ui->btnReaderDelete, &QPushButton::clicked, this, &MasterView::on_btnReaderDelete_clicked);
 
     // 连接退出系统按钮
     connect(ui->btnExitSystem, &QPushButton::clicked, this, &MasterView::on_btnExitSystem_clicked);
@@ -158,6 +169,55 @@ void MasterView::on_btnBookQuery_clicked()
 
 // 删除图书按钮点击
 void MasterView::on_btnBookDelete_clicked()
+{
+    // 这里可以添加删除逻辑
+    // 暂时不显示任何提示
+}
+
+// 添加读者按钮点击
+void MasterView::on_btnReaderAdd_clicked()
+{
+    if (!readerEditDialog) {
+        readerEditDialog = new ReaderEditView(this);
+    }
+
+    // 设置对话框为添加模式
+    readerEditDialog->setWindowTitle("添加读者");
+
+    // 显示对话框
+    readerEditDialog->show();
+    readerEditDialog->raise();
+    readerEditDialog->activateWindow();
+}
+
+// 修改读者按钮点击
+void MasterView::on_btnReaderModify_clicked()
+{
+    if (!readerEditDialog) {
+        readerEditDialog = new ReaderEditView(this);
+    }
+
+    // 设置对话框为修改模式
+    readerEditDialog->setWindowTitle("修改读者");
+
+    // 显示对话框
+    readerEditDialog->show();
+    readerEditDialog->raise();
+    readerEditDialog->activateWindow();
+}
+
+// 查询读者按钮点击
+void MasterView::on_btnReaderQuery_clicked()
+{
+    // 获取搜索文本
+    QString searchText = ui->ReaderSearchlineEdit->text();
+
+    // 这里可以添加查询逻辑
+    // 暂时不显示任何提示
+}
+
+// 删除读者按钮点击
+void MasterView::on_btnReaderDelete_clicked()
 {
     // 这里可以添加删除逻辑
     // 暂时不显示任何提示
