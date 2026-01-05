@@ -2,6 +2,7 @@
 #define BOOKEDITVIEW_H
 
 #include <QWidget>
+#include <QDataWidgetMapper>
 
 namespace Ui {
 class BookEditView;
@@ -27,6 +28,7 @@ private slots:
 
 private:
     Ui::BookEditView *ui;
+    QDataWidgetMapper *dataMapper; //数据映射
 };
 
 #endif // BOOKEDITVIEW_H

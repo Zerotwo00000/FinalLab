@@ -27,8 +27,14 @@ private:
 
     void ininDatabase();
 
+
 signals:
 
+
+public:
+    bool initBookModel();
+    QSqlTableModel *bookTabModel;
+    QItemSelectionModel *theBookSelection;
 };
 
 #endif // IDATABASE_H

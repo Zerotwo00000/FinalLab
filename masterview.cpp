@@ -29,6 +29,18 @@ MasterView::MasterView(QWidget *parent)
     setupConnections();
 
     IDatabase::getInstance();
+
+    ui->BooktableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->BooktableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->BooktableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->BooktableView->setAlternatingRowColors(true);
+
+    IDatabase &iDatabase = IDatabase::getInstance();
+    if (iDatabase.initBookModel()){
+        ui->BooktableView->setModel(iDatabase.bookTabModel);
+        ui->BooktableView->setSelectionModel(iDatabase.theBookSelection);
+    }
+
 }
 
 MasterView::~MasterView()

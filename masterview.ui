@@ -269,7 +269,7 @@ QPushButton#btExit:hover {
 }</string>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="pageBooks">
           <layout class="QVBoxLayout" name="verticalLayout_2">
