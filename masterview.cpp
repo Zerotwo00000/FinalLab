@@ -2,13 +2,16 @@
 #include "ui_masterview.h"
 #include "bookeditview.h"  // 包含图书编辑界面
 #include "readereditview.h"  // 包含读者编辑界面
+#include "borrowedview.h"  // 包含借阅界面
 #include <QButtonGroup>
+#include <QDate>
 
 MasterView::MasterView(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MasterView)
     , bookEditDialog(nullptr)  // 初始化为nullptr
     , readerEditDialog(nullptr)  // 初始化为nullptr
+    , borrowedDialog(nullptr)  // 初始化为nullptr
 {
     ui->setupUi(this);
 
@@ -33,6 +36,9 @@ MasterView::~MasterView()
     }
     if (readerEditDialog) {
         delete readerEditDialog;
+    }
+    if (borrowedDialog) {
+        delete borrowedDialog;
     }
 }
 
@@ -68,6 +74,12 @@ void MasterView::setupConnections()
     connect(ui->btnReaderModify, &QPushButton::clicked, this, &MasterView::on_btnReaderModify_clicked);
     connect(ui->btnReaderQuery, &QPushButton::clicked, this, &MasterView::on_btnReaderQuery_clicked);
     connect(ui->btnReaderDelete, &QPushButton::clicked, this, &MasterView::on_btnReaderDelete_clicked);
+
+    // 连接借阅管理按钮
+    connect(ui->btnBorrowed, &QPushButton::clicked, this, &MasterView::on_btnBorrowed_clicked);
+    connect(ui->btnBorrowQuery, &QPushButton::clicked, this, &MasterView::on_btnBorrowQuery_clicked);
+    connect(ui->btnBorrowDelete, &QPushButton::clicked, this, &MasterView::on_btnBorrowDelete_clicked);
+    connect(ui->btnBorrowReturn, &QPushButton::clicked, this, &MasterView::on_btnBorrowReturn_clicked);
 
     // 连接退出系统按钮
     connect(ui->btnExitSystem, &QPushButton::clicked, this, &MasterView::on_btnExitSystem_clicked);
@@ -220,6 +232,46 @@ void MasterView::on_btnReaderQuery_clicked()
 void MasterView::on_btnReaderDelete_clicked()
 {
     // 这里可以添加删除逻辑
+    // 暂时不显示任何提示
+}
+
+// 借阅按钮点击
+void MasterView::on_btnBorrowed_clicked()
+{
+    if (!borrowedDialog) {
+        borrowedDialog = new BorrowedView(this);
+    }
+
+    // 设置对话框标题
+    borrowedDialog->setWindowTitle("借阅信息填写");
+
+    // 显示对话框
+    borrowedDialog->show();
+    borrowedDialog->raise();
+    borrowedDialog->activateWindow();
+}
+
+// 查询借阅记录按钮点击
+void MasterView::on_btnBorrowQuery_clicked()
+{
+    // 获取搜索文本
+    QString searchText = ui->BorrowSearchlineEdit->text();
+
+    // 这里可以添加查询逻辑
+    // 暂时不显示任何提示
+}
+
+// 删除借阅记录按钮点击
+void MasterView::on_btnBorrowDelete_clicked()
+{
+    // 这里可以添加删除逻辑
+    // 暂时不显示任何提示
+}
+
+// 归还图书按钮点击
+void MasterView::on_btnBorrowReturn_clicked()
+{
+    // 这里可以添加归还逻辑
     // 暂时不显示任何提示
 }
 

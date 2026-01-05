@@ -11,6 +11,7 @@ QT_END_NAMESPACE
 
 class BookEditView;  // 前向声明
 class ReaderEditView;  // 前向声明
+class BorrowedView;  // 前向声明
 
 class MasterView : public QMainWindow
 {
@@ -39,6 +40,12 @@ private slots:
     void on_btnReaderQuery_clicked();
     void on_btnReaderDelete_clicked();
 
+    // 借阅管理按钮
+    void on_btnBorrowed_clicked();  // 借阅按钮
+    void on_btnBorrowQuery_clicked();  // 查询记录按钮
+    void on_btnBorrowDelete_clicked();  // 删除按钮
+    void on_btnBorrowReturn_clicked();  // 归还按钮
+
     // 退出系统
     void on_btnExitSystem_clicked();
 
@@ -46,6 +53,7 @@ private:
     Ui::MasterView *ui;
     BookEditView *bookEditDialog;  // 图书编辑对话框
     ReaderEditView *readerEditDialog;  // 读者编辑对话框
+    BorrowedView *borrowedDialog;  // 借阅对话框
 
     void setupNavigation();    // 设置导航
     void setupConnections();   // 设置信号槽连接
