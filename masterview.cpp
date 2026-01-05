@@ -5,6 +5,7 @@
 #include "borrowedview.h"  // 包含借阅界面
 #include <QButtonGroup>
 #include <QDate>
+#include "idatabase.h"
 
 MasterView::MasterView(QWidget *parent)
     : QMainWindow(parent)
@@ -26,6 +27,8 @@ MasterView::MasterView(QWidget *parent)
 
     // 连接信号槽
     setupConnections();
+
+    IDatabase::getInstance();
 }
 
 MasterView::~MasterView()
