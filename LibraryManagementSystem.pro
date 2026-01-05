@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     bookeditview.cpp \
+    borrowedview.cpp \
     login.cpp \
     main.cpp \
     masterview.cpp \
@@ -17,12 +18,14 @@ SOURCES += \
 
 HEADERS += \
     bookeditview.h \
+    borrowedview.h \
     login.h \
     masterview.h \
     readereditview.h
 
 FORMS += \
     bookeditview.ui \
+    borrowedview.ui \
     login.ui \
     masterview.ui \
     readereditview.ui

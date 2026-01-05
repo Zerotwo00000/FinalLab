@@ -366,7 +366,7 @@ QLabel[text*=&quot;*&quot;] {
       </widget>
      </item>
      <item row="9" column="0">
-      <widget class="QPushButton" name="pushButtonCancel">
+      <widget class="QPushButton" name="BtnBookCancel">
        <property name="text">
         <string>取消</string>
        </property>
@@ -386,7 +386,7 @@ QLabel[text*=&quot;*&quot;] {
       </spacer>
      </item>
      <item row="9" column="2">
-      <widget class="QPushButton" name="pushButtonOk">
+      <widget class="QPushButton" name="BtnBookOK">
        <property name="styleSheet">
         <string notr="true">QPushButton#pushButtonOk {
     background-color: #409eff;
