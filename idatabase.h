@@ -26,6 +26,7 @@ private:
     void ininDatabase();
 
 signals:
+    void dataUpdated();
 
 public:
     // 图书模型

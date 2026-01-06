@@ -4,9 +4,7 @@
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-class MasterView;
-}
+namespace Ui { class MasterView; }
 QT_END_NAMESPACE
 
 class BookEditView;
@@ -18,11 +16,11 @@ class MasterView : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MasterView(QWidget *parent = nullptr);
+    MasterView(QWidget *parent = nullptr);
     ~MasterView();
 
 private slots:
-    // 导航按钮点击槽函数
+    // 导航按钮
     void on_btnBookManage_clicked();
     void on_btnReaderManage_clicked();
     void on_btnBorrowManage_clicked();
@@ -41,10 +39,14 @@ private slots:
     void on_btnReaderDelete_clicked();
 
     // 借阅管理按钮
-    void on_btnBorrowed_clicked();  // 借阅按钮
-    void on_btnBorrowQuery_clicked();  // 查询记录按钮
-    void on_btnBorrowDelete_clicked();  // 删除按钮
-    void on_btnBorrowReturn_clicked();  // 归还按钮
+    void on_btnBorrowed_clicked();
+    void on_btnBorrowQuery_clicked();
+    void on_btnBorrowDelete_clicked();
+    void on_btnBorrowReturn_clicked();
+
+    // 报表管理按钮
+    void on_btnReportQuery_clicked();  // 查询统计
+    void exportDataClicked();          // 导出数据 - 修改了函数名
 
     // 退出系统
     void on_btnExitSystem_clicked();
@@ -57,13 +59,21 @@ private:
     ReaderEditView *readerEditDialog = nullptr;
     BorrowedView *borrowedDialog = nullptr;
 
-    void setupNavigation();    // 设置导航
-    void setupConnections();   // 设置信号槽连接
-    void setupTableViews();    // 设置表格视图属性
-    void setupDatabaseModels(); // 设置数据库模型
+    // 初始化函数
+    void setupNavigation();              // 设置导航功能
+    void setupConnections();             // 设置信号槽连接
+    void setupTableViews();              // 设置表格视图属性
+    void setupDatabaseModels();          // 设置数据库模型
 
-    // 添加逾期检查函数
-    void checkOverdueAlert(const QString& readerNo, const QString& isbn, const QString& borrowDate);
+    // 统计函数
+    void generateReport();                // 生成统计报表
+    QString getMostBorrowedBook();       // 获取借阅最多的图书
+    QString getLeastBorrowedBook();       // 获取借阅最少的图书
+    QString getMostActiveReader();        // 获取借书最多的读者
+    QString getLeastActiveReader();       // 获取借书最少的读者
+
+    // 导出函数
+    void exportToExcel();                 // 导出到Excel
 };
 
 #endif // MASTERVIEW_H

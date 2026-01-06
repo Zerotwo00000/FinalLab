@@ -6,6 +6,11 @@
 #include "idatabase.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QTextStream>
+#include <QDate>
+#include <QDateTime>
+#include <QStandardPaths>
 
 MasterView::MasterView(QWidget *parent)
     : QMainWindow(parent)
@@ -44,18 +49,21 @@ void MasterView::setupTableViews()
     ui->BooktableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->BooktableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->BooktableView->setAlternatingRowColors(true);
+    ui->BooktableView->horizontalHeader()->setStretchLastSection(true);
 
     // 读者表格设置
     ui->ReadertableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->ReadertableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->ReadertableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->ReadertableView->setAlternatingRowColors(true);
+    ui->ReadertableView->horizontalHeader()->setStretchLastSection(true);
 
     // 借阅表格设置
     ui->BorrowtableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->BorrowtableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->BorrowtableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->BorrowtableView->setAlternatingRowColors(true);
+    ui->BorrowtableView->horizontalHeader()->setStretchLastSection(true);
 }
 
 void MasterView::setupDatabaseModels()
@@ -120,8 +128,16 @@ void MasterView::setupConnections()
     connect(ui->btnBorrowDelete, &QPushButton::clicked, this, &MasterView::on_btnBorrowDelete_clicked);
     connect(ui->btnBorrowReturn, &QPushButton::clicked, this, &MasterView::on_btnBorrowReturn_clicked);
 
+    // 连接报表管理按钮
+    connect(ui->btnReportQuery, &QPushButton::clicked, this, &MasterView::on_btnReportQuery_clicked);
+    connect(ui->btnExport, &QPushButton::clicked, this, &MasterView::exportDataClicked);
+
     // 连接退出系统按钮
     connect(ui->btnExitSystem, &QPushButton::clicked, this, &MasterView::on_btnExitSystem_clicked);
+
+    qDebug() << "信号槽连接完成，检查报表按钮状态：";
+    qDebug() << "查询统计按钮：" << (ui->btnReportQuery ? "存在" : "不存在");
+    qDebug() << "导出数据按钮：" << (ui->btnExport ? "存在" : "不存在");
 }
 
 // 导航按钮点击
@@ -159,6 +175,9 @@ void MasterView::on_btnReportManage_clicked()
     ui->btnReaderManage->setChecked(false);
     ui->btnBorrowManage->setChecked(false);
     ui->btnReportManage->setChecked(true);
+
+    // 切换到报表页面时自动生成统计报表
+    generateReport();
 }
 
 // 添加图书按钮点击
@@ -425,7 +444,6 @@ void MasterView::on_btnReaderModify_clicked()
     qDebug() << "=== 修改读者按钮处理完成 ===";
 }
 
-
 // 查询读者按钮点击
 void MasterView::on_btnReaderQuery_clicked()
 {
@@ -458,46 +476,6 @@ void MasterView::on_btnReaderDelete_clicked()
     IDatabase::getInstance().deleteCurrentReader();
 }
 
-// 借阅按钮点击
-void MasterView::on_btnBorrowed_clicked()
-{
-    // 检查是否已经有对话框打开
-    if (borrowedDialog != nullptr && borrowedDialog->isVisible()) {
-        borrowedDialog->activateWindow();
-        borrowedDialog->raise();
-        return;
-    }
-
-    if (borrowedDialog) {
-        delete borrowedDialog;
-    }
-
-    borrowedDialog = new BorrowedView(this);
-
-    // 连接数据更新信号
-    connect(borrowedDialog, &BorrowedView::dataUpdated, this, [this]() {
-        // 刷新所有模型
-        IDatabase::getInstance().borrowTabModel->select();
-        IDatabase::getInstance().bookTabModel->select();
-        IDatabase::getInstance().readerTabModel->select();
-    });
-
-    // 连接对话框关闭信号
-    connect(borrowedDialog, &BorrowedView::dialogClosed, this, [this]() {
-        borrowedDialog = nullptr;
-    });
-
-    // 连接销毁信号
-    connect(borrowedDialog, &BorrowedView::destroyed, this, [this]() {
-        borrowedDialog = nullptr;
-    });
-
-    borrowedDialog->setWindowTitle("借阅信息填写");
-    borrowedDialog->show();
-    borrowedDialog->raise();
-    borrowedDialog->activateWindow();
-}
-
 // 查询借阅记录按钮点击
 void MasterView::on_btnBorrowQuery_clicked()
 {
@@ -526,19 +504,54 @@ void MasterView::on_btnBorrowDelete_clicked()
     IDatabase::getInstance().deleteCurrentBorrow();
 }
 
+// 借阅按钮点击
+void MasterView::on_btnBorrowed_clicked()
+{
+    if (borrowedDialog != nullptr && borrowedDialog->isVisible()) {
+        borrowedDialog->activateWindow();
+        borrowedDialog->raise();
+        return;
+    }
+
+    if (borrowedDialog) {
+        delete borrowedDialog;
+    }
+
+    borrowedDialog = new BorrowedView(this);
+
+    connect(borrowedDialog, &BorrowedView::dataUpdated, this, [this]() {
+        qDebug() << "借阅成功，刷新数据...";
+        // 刷新所有模型
+        IDatabase::getInstance().borrowTabModel->select();
+        IDatabase::getInstance().bookTabModel->select();
+        IDatabase::getInstance().readerTabModel->select();
+    });
+
+    connect(borrowedDialog, &BorrowedView::dialogClosed, this, [this]() {
+        qDebug() << "借阅对话框关闭";
+        borrowedDialog = nullptr;
+    });
+
+    borrowedDialog->setWindowTitle("借阅信息填写");
+    borrowedDialog->show();
+    borrowedDialog->raise();
+    borrowedDialog->activateWindow();
+}
+
 // 归还图书按钮点击
 void MasterView::on_btnBorrowReturn_clicked()
 {
-    // 检查是否有选中的行
+    qDebug() << "\n=== 开始归还图书 ===";
+
     if (!IDatabase::getInstance().theBorrowSelection ||
         !IDatabase::getInstance().theBorrowSelection->hasSelection()) {
-        QMessageBox::warning(this, "提示", "请先选择要归还的借阅记录！");
+        qDebug() << "请先选择要归还的借阅记录";
         return;
     }
 
     QModelIndex currentIndex = IDatabase::getInstance().theBorrowSelection->currentIndex();
     if (!currentIndex.isValid()) {
-        QMessageBox::warning(this, "错误", "选中的索引无效！");
+        qDebug() << "选中的索引无效";
         return;
     }
 
@@ -546,63 +559,46 @@ void MasterView::on_btnBorrowReturn_clicked()
 
     // 获取借阅记录信息
     QString readerNo = IDatabase::getInstance().borrowTabModel->data(
-                                                                  IDatabase::getInstance().borrowTabModel->index(currentRow, 0)
-                                                                  ).toString();
-
+                                                                  IDatabase::getInstance().borrowTabModel->index(currentRow, 0)).toString();
     QString isbn = IDatabase::getInstance().borrowTabModel->data(
-                                                              IDatabase::getInstance().borrowTabModel->index(currentRow, 1)
-                                                              ).toString();
-
+                                                              IDatabase::getInstance().borrowTabModel->index(currentRow, 1)).toString();
     QString borrowDate = IDatabase::getInstance().borrowTabModel->data(
-                                                                    IDatabase::getInstance().borrowTabModel->index(currentRow, 2)
-                                                                    ).toString();
+                                                                    IDatabase::getInstance().borrowTabModel->index(currentRow, 2)).toString();
+    QString dueDateStr = IDatabase::getInstance().borrowTabModel->data(
+                                                                    IDatabase::getInstance().borrowTabModel->index(currentRow, 3)).toString();
+
+    qDebug() << "读者编号:" << readerNo;
+    qDebug() << "ISBN:" << isbn;
+    qDebug() << "借阅日期:" << borrowDate;
+    qDebug() << "应还日期:" << dueDateStr;
 
     // 检查是否已归还
     int isReturned = IDatabase::getInstance().borrowTabModel->data(
-                                                                IDatabase::getInstance().borrowTabModel->index(currentRow, 5)
-                                                                ).toInt();
+                                                                IDatabase::getInstance().borrowTabModel->index(currentRow, 5)).toInt();
 
     if (isReturned == 1) {
-        QMessageBox::information(this, "提示", "该书籍已归还！");
+        qDebug() << "该书籍已归还，无需再次归还";
         return;
     }
 
-    // 获取书籍名称用于显示
-    QSqlQuery bookQuery;
-    bookQuery.prepare("SELECT title FROM books WHERE isbn = ?");
-    bookQuery.addBindValue(isbn);
-    QString bookTitle = "未知书籍";
-    if (bookQuery.exec() && bookQuery.next()) {
-        bookTitle = bookQuery.value(0).toString();
-    }
+    QDate dueDate = QDate::fromString(dueDateStr, "yyyy-MM-dd");
+    QDate currentDate = QDate::currentDate();
 
-    // 获取读者姓名
-    QSqlQuery readerQuery;
-    readerQuery.prepare("SELECT name FROM readers WHERE reader_no = ?");
-    readerQuery.addBindValue(readerNo);
-    QString readerName = "未知读者";
-    if (readerQuery.exec() && readerQuery.next()) {
-        readerName = readerQuery.value(0).toString();
-    }
+    // 计算是否逾期
+    bool isOverdue = currentDate > dueDate;
+    int overdueDays = 0;
 
-    // 确认归还
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "确认归还",
-                                  QString("确定要归还以下借阅记录吗？\n\n"
-                                          "读者：%1 (%2)\n"
-                                          "书籍：%3 (%4)\n"
-                                          "借阅日期：%5")
-                                      .arg(readerName, readerNo, bookTitle, isbn, borrowDate),
-                                  QMessageBox::Yes | QMessageBox::No);
-
-    if (reply != QMessageBox::Yes) {
-        return;
+    if (isOverdue) {
+        overdueDays = dueDate.daysTo(currentDate);
+        qDebug() << "注意: 已逾期" << overdueDays << "天";
+    } else {
+        qDebug() << "未逾期，按时归还";
     }
 
     // 开始事务
     QSqlDatabase db = QSqlDatabase::database();
     if (!db.transaction()) {
-        QMessageBox::warning(this, "错误", "开始事务失败！");
+        qDebug() << "开始事务失败";
         return;
     }
 
@@ -622,71 +618,228 @@ void MasterView::on_btnBorrowReturn_clicked()
 
         if (!updateQuery.exec()) {
             db.rollback();
-            QMessageBox::warning(this, "错误", QString("更新借阅记录失败：%1").arg(updateQuery.lastError().text()));
+            qDebug() << "更新借阅记录失败:" << updateQuery.lastError().text();
             return;
         }
 
         int rowsAffected = updateQuery.numRowsAffected();
         if (rowsAffected == 0) {
             db.rollback();
-            QMessageBox::warning(this, "错误", "更新失败，可能是记录已被归还！");
+            qDebug() << "更新失败，可能是记录已被归还";
             return;
         }
 
-        // 提交事务
         if (!db.commit()) {
-            QMessageBox::warning(this, "错误", "提交事务失败！");
             db.rollback();
+            qDebug() << "提交事务失败";
             return;
         }
 
-        QMessageBox::information(this, "成功", "归还成功！");
+        qDebug() << "归还成功!";
+
+        if (isOverdue) {
+            qDebug() << "本次借阅逾期" << overdueDays << "天，请注意查看逾期记录";
+        }
 
         // 刷新模型
         IDatabase::getInstance().borrowTabModel->select();
         IDatabase::getInstance().bookTabModel->select();
         IDatabase::getInstance().readerTabModel->select();
 
-        // 检查是否逾期
-        checkOverdueAlert(readerNo, isbn, borrowDate);
-
     } catch (...) {
         db.rollback();
-        QMessageBox::warning(this, "错误", "归还过程中发生异常！");
+        qDebug() << "归还过程中发生异常";
     }
 }
 
-// 检查逾期提醒
-void MasterView::checkOverdueAlert(const QString& readerNo, const QString& isbn, const QString& borrowDate)
+// 报表查询按钮点击
+void MasterView::on_btnReportQuery_clicked()
+{
+    qDebug() << "查询统计按钮被点击";
+    generateReport();
+}
+
+// 导出数据按钮点击
+void MasterView::exportDataClicked()
+{
+    qDebug() << "导出数据按钮被点击";
+    exportToExcel();
+}
+
+// 获取借阅最多的图书
+QString MasterView::getMostBorrowedBook()
 {
     QSqlQuery query;
-    query.prepare(
-        "SELECT is_overdue, due_date, return_date "
-        "FROM borrow_records "
-        "WHERE reader_no = ? AND isbn = ? AND borrow_date = ?"
-        );
-    query.addBindValue(readerNo);
-    query.addBindValue(isbn);
-    query.addBindValue(borrowDate);
+    query.prepare("SELECT isbn, COUNT(*) as borrow_count FROM borrow_records GROUP BY isbn ORDER BY borrow_count DESC LIMIT 1");
 
     if (query.exec() && query.next()) {
-        int isOverdue = query.value(0).toInt();
-        QDate dueDate = QDate::fromString(query.value(1).toString(), "yyyy-MM-dd");
-        QDate returnDate = QDate::fromString(query.value(2).toString(), "yyyy-MM-dd");
+        QString isbn = query.value(0).toString();
+        int borrowCount = query.value(1).toInt();
 
-        if (isOverdue == 1) {
-            int overdueDays = dueDate.daysTo(returnDate);
-            QString message = QString("注意：本次借阅已逾期！\n\n"
-                                      "应还日期：%1\n"
-                                      "归还日期：%2\n"
-                                      "逾期天数：%3天")
-                                  .arg(dueDate.toString("yyyy-MM-dd"),
-                                       returnDate.toString("yyyy-MM-dd"))
-                                  .arg(overdueDays);
+        // 查询图书详细信息
+        QSqlQuery bookQuery;
+        bookQuery.prepare("SELECT title, author FROM books WHERE isbn = ?");
+        bookQuery.addBindValue(isbn);
 
-            QMessageBox::warning(this, "逾期提醒", message);
+        if (bookQuery.exec() && bookQuery.next()) {
+            QString title = bookQuery.value(0).toString();
+            QString author = bookQuery.value(1).toString();
+            return QString("%1 (ISBN: %2) - 借阅次数: %3次").arg(title, isbn, QString::number(borrowCount));
         }
     }
+
+    return "暂无借阅记录";
+}
+
+// 获取借阅最少的图书
+QString MasterView::getLeastBorrowedBook()
+{
+    QSqlQuery query;
+    query.prepare("SELECT isbn, COUNT(*) as borrow_count FROM borrow_records GROUP BY isbn ORDER BY borrow_count ASC LIMIT 1");
+
+    if (query.exec() && query.next()) {
+        QString isbn = query.value(0).toString();
+        int borrowCount = query.value(1).toInt();
+
+        // 查询图书详细信息
+        QSqlQuery bookQuery;
+        bookQuery.prepare("SELECT title, author FROM books WHERE isbn = ?");
+        bookQuery.addBindValue(isbn);
+
+        if (bookQuery.exec() && bookQuery.next()) {
+            QString title = bookQuery.value(0).toString();
+            QString author = bookQuery.value(1).toString();
+            return QString("%1 (ISBN: %2) - 借阅次数: %3次").arg(title, isbn, QString::number(borrowCount));
+        }
+    }
+
+    return "暂无借阅记录";
+}
+
+// 获取借书最多的读者
+QString MasterView::getMostActiveReader()
+{
+    QSqlQuery query;
+    query.prepare("SELECT reader_no, COUNT(*) as borrow_count FROM borrow_records GROUP BY reader_no ORDER BY borrow_count DESC LIMIT 1");
+
+    if (query.exec() && query.next()) {
+        QString readerNo = query.value(0).toString();
+        int borrowCount = query.value(1).toInt();
+
+        // 查询读者详细信息
+        QSqlQuery readerQuery;
+        readerQuery.prepare("SELECT name, phone FROM readers WHERE reader_no = ?");
+        readerQuery.addBindValue(readerNo);
+
+        if (readerQuery.exec() && readerQuery.next()) {
+            QString name = readerQuery.value(0).toString();
+            QString phone = readerQuery.value(1).toString();
+            return QString("%1 (编号: %2) - 借书次数: %3次").arg(name, readerNo, QString::number(borrowCount));
+        }
+    }
+
+    return "暂无借阅记录";
+}
+
+// 获取借书最少的读者
+QString MasterView::getLeastActiveReader()
+{
+    QSqlQuery query;
+    query.prepare("SELECT reader_no, COUNT(*) as borrow_count FROM borrow_records GROUP BY reader_no ORDER BY borrow_count ASC LIMIT 1");
+
+    if (query.exec() && query.next()) {
+        QString readerNo = query.value(0).toString();
+        int borrowCount = query.value(1).toInt();
+
+        // 查询读者详细信息
+        QSqlQuery readerQuery;
+        readerQuery.prepare("SELECT name, phone FROM readers WHERE reader_no = ?");
+        readerQuery.addBindValue(readerNo);
+
+        if (readerQuery.exec() && readerQuery.next()) {
+            QString name = readerQuery.value(0).toString();
+            QString phone = readerQuery.value(1).toString();
+            return QString("%1 (编号: %2) - 借书次数: %3次").arg(name, readerNo, QString::number(borrowCount));
+        }
+    }
+
+    return "暂无借阅记录";
+}
+
+// 生成统计报表
+void MasterView::generateReport()
+{
+    qDebug() << "开始生成统计报表...";
+
+    // 获取统计信息
+    QString mostBorrowedBook = getMostBorrowedBook();
+    QString leastBorrowedBook = getLeastBorrowedBook();
+    QString mostActiveReader = getMostActiveReader();
+    QString leastActiveReader = getLeastActiveReader();
+
+    // 更新UI显示
+    ui->lineEditMostBorrowed->setText(mostBorrowedBook);
+    ui->lineEditLoseBorrowed->setText(leastBorrowedBook);
+    ui->lineEditMBorrowedReader->setText(mostActiveReader);
+    ui->lineEditLBorrowedReader->setText(leastActiveReader);
+
+    qDebug() << "统计报表生成完成";
+    qDebug() << "借阅次数最多的图书：" << mostBorrowedBook;
+    qDebug() << "借阅次数最少的图书：" << leastBorrowedBook;
+    qDebug() << "借书次数最多的读者：" << mostActiveReader;
+    qDebug() << "借书次数最少的读者：" << leastActiveReader;
+}
+
+// 导出到Excel
+void MasterView::exportToExcel()
+{
+    qDebug() << "开始导出到Excel";
+
+    // 获取统计信息
+    QString mostBorrowedBook = getMostBorrowedBook();
+    QString leastBorrowedBook = getLeastBorrowedBook();
+    QString mostActiveReader = getMostActiveReader();
+    QString leastActiveReader = getLeastActiveReader();
+
+    // 弹出文件保存对话框
+    QString fileName = QFileDialog::getSaveFileName(this, "导出报表",
+                                                    "图书借阅统计报表_" + QDate::currentDate().toString("yyyy-MM-dd") + ".csv",
+                                                    "CSV Files (*.csv);;All Files (*)");
+
+    if (fileName.isEmpty()) {
+        qDebug() << "用户取消了导出";
+        return;
+    }
+
+    qDebug() << "保存文件到：" << fileName;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug() << "无法创建文件:" << fileName;
+        QMessageBox::warning(this, "导出失败", "无法创建文件！");
+        return;
+    }
+
+    QTextStream out(&file);
+
+    // 在Qt 6中，使用setGenerateByteOrderMark来生成UTF-8 BOM
+    out.setGenerateByteOrderMark(true);
+
+    // 写入标题
+    out << "图书借阅统计报表\n";
+    out << "生成时间：" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") << "\n\n";
+
+    // 写入统计项目
+    out << "统计项目,统计结果\n";
+    out << "借阅次数最多的图书," << mostBorrowedBook << "\n";
+    out << "借阅次数最少的图书," << leastBorrowedBook << "\n";
+    out << "借书次数最多的读者," << mostActiveReader << "\n";
+    out << "借书次数最少的读者," << leastActiveReader << "\n";
+
+    file.close();
+
+    qDebug() << "报表已导出到:" << fileName;
+    QMessageBox::information(this, "导出成功", QString("报表已成功导出到:\n%1").arg(fileName));
 }
 
 // 退出系统按钮点击

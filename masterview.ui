@@ -269,7 +269,7 @@ QPushButton#btExit:hover {
 }</string>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="pageBooks">
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -410,13 +410,6 @@ QPushButton#btExit:hover {
          <widget class="QWidget" name="page_10">
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
-            <widget class="QLabel" name="labelData">
-             <property name="text">
-              <string>借阅数据统计结果如下：</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
             <layout class="QGridLayout" name="gridLayout">
              <item row="0" column="0">
               <widget class="QLabel" name="labelMostBorrowed">
@@ -460,19 +453,36 @@ QPushButton#btExit:hover {
              </item>
             </layout>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QPushButton" name="btnOutdata">
-             <property name="text">
-              <string>导出数据</string>
-             </property>
-            </widget>
+           <item row="1" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QPushButton" name="btnReportQuery">
+               <property name="text">
+                <string>查询</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnExport">
+               <property name="text">
+                <string>导出数据</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>

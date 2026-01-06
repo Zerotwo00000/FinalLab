@@ -30,8 +30,6 @@ ReaderEditView::ReaderEditView(QWidget *parent, int currentRow, ReaderEditView::
         setWindowTitle("修改读者");
     }
 
-    // 根据UI中的按钮名称修正连接
-    // 注意：确保UI文件中的对象名称是 BtnReaderOK 而不是 BtnReaderOk
     if (ui->BtnReaderOk) {
         connect(ui->BtnReaderOk, &QPushButton::clicked, this, &ReaderEditView::on_BtnReaderOK_clicked);
     }

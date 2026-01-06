@@ -2,7 +2,6 @@
 #define BORROWEDVIEW_H
 
 #include <QWidget>
-#include <QSqlQuery>
 
 namespace Ui {
 class BorrowedView;
@@ -17,8 +16,8 @@ public:
     ~BorrowedView();
 
 signals:
-    void dataUpdated();  // 数据更新信号
-    void dialogClosed();  // 对话框关闭信号
+    void dataUpdated();
+    void dialogClosed();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -31,22 +30,19 @@ private slots:
     void on_btnBorrowedCancel_clicked();
 
     // 书籍选择变化
-    void on_comboBoxBorrow_currentIndexChanged(int index);
+    void onBookSelected(int index);
 
 private:
     Ui::BorrowedView *ui;
 
-    // 初始化下拉框
-    void initComboBox();
+    // 加载可借阅书籍
+    void loadAvailableBooks();
 
-    // 显示书籍信息
-    void showBookInfo(const QString& isbn);
+    // 检查读者状态
+    bool checkReaderStatus(const QString& readerNo);
 
-    // 验证借阅条件
-    bool validateBorrowCondition(const QString& readerNo, const QString& isbn);
-
-    // 当前选择的ISBN
-    QString selectedIsbn;
+    // 检查是否今天已借阅过同一本书
+    bool checkTodayBorrowed(const QString& readerNo, const QString& isbn, const QDate& borrowDate);
 };
 
 #endif // BORROWEDVIEW_H
