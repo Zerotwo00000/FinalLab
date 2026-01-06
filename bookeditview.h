@@ -13,8 +13,14 @@ class BookEditView : public QWidget
     Q_OBJECT
 
 public:
-    explicit BookEditView(QWidget *parent = nullptr);
+    // 添加模式参数
+    enum Mode { Add, Edit };
+
+    explicit BookEditView(QWidget *parent = nullptr, int currentRow = -1, BookEditView::Mode mode = Add);
     ~BookEditView();
+
+signals:
+    void dataUpdated();  // 数据更新信号
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -28,7 +34,9 @@ private slots:
 
 private:
     Ui::BookEditView *ui;
-    QDataWidgetMapper *dataMapper; //数据映射
+    QDataWidgetMapper *dataMapper; // 数据映射
+    int currentRow; // 当前行号
+    Mode editMode;  // 编辑模式
 };
 
 #endif // BOOKEDITVIEW_H

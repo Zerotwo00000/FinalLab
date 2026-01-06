@@ -9,9 +9,9 @@ class MasterView;
 }
 QT_END_NAMESPACE
 
-class BookEditView;  // 前向声明
-class ReaderEditView;  // 前向声明
-class BorrowedView;  // 前向声明
+class BookEditView;
+class ReaderEditView;
+class BorrowedView;
 
 class MasterView : public QMainWindow
 {
@@ -51,12 +51,16 @@ private slots:
 
 private:
     Ui::MasterView *ui;
-    BookEditView *bookEditDialog;  // 图书编辑对话框
-    ReaderEditView *readerEditDialog;  // 读者编辑对话框
-    BorrowedView *borrowedDialog;  // 借阅对话框
+
+    // 对话框指针
+    BookEditView *bookEditDialog = nullptr;
+    ReaderEditView *readerEditDialog = nullptr;
+    BorrowedView *borrowedDialog = nullptr;
 
     void setupNavigation();    // 设置导航
     void setupConnections();   // 设置信号槽连接
+    void setupTableViews();    // 设置表格视图属性
+    void setupDatabaseModels(); // 设置数据库模型
 };
 
 #endif // MASTERVIEW_H

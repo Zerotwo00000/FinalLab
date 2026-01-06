@@ -1,19 +1,14 @@
 #include "masterview.h"
 #include "ui_masterview.h"
-#include "bookeditview.h"  // 包含图书编辑界面
-#include "readereditview.h"  // 包含读者编辑界面
-#include "borrowedview.h"  // 包含借阅界面
-#include <QButtonGroup>
-#include <QDate>
+#include "bookeditview.h"
+#include "readereditview.h"
+#include "borrowedview.h"
 #include "idatabase.h"
-#include <QMessageBox>
+#include <QDebug>
 
 MasterView::MasterView(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MasterView)
-    , bookEditDialog(nullptr)  // 初始化为nullptr
-    , readerEditDialog(nullptr)  // 初始化为nullptr
-    , borrowedDialog(nullptr)  // 初始化为nullptr
 {
     ui->setupUi(this);
 
@@ -23,60 +18,65 @@ MasterView::MasterView(QWidget *parent)
     // 设置窗口大小
     resize(1000, 700);
 
+    // 设置表格视图属性
+    setupTableViews();
+
     // 设置导航功能
     setupNavigation();
 
     // 连接信号槽
     setupConnections();
 
-    IDatabase::getInstance();
-
-    ui->BooktableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->BooktableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->BooktableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->BooktableView->setAlternatingRowColors(true);
-
-    ui->ReadertableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->ReadertableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->ReadertableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->ReadertableView->setAlternatingRowColors(true);
-
-    ui->BorrowtableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->BorrowtableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->BorrowtableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->BorrowtableView->setAlternatingRowColors(true);
-
-    IDatabase &iDatabase = IDatabase::getInstance();
-    if (iDatabase.initBookModel()){
-        ui->BooktableView->setModel(iDatabase.bookTabModel);
-        ui->BooktableView->setSelectionModel(iDatabase.theBookSelection);
-    }
-
-    if (iDatabase.initReaderModel()){
-        ui->ReadertableView->setModel(iDatabase.readerTabModel);
-        ui->ReadertableView->setSelectionModel(iDatabase.theReaderSelection);
-    }
-
-    if (iDatabase.initBorrowModel()){
-        ui->BorrowtableView->setModel(iDatabase.borrowTabModel);
-        ui->BorrowtableView->setSelectionModel(iDatabase.theBorrowSelection);
-    }
-
-
-
+    // 设置数据库模型
+    setupDatabaseModels();
 }
 
 MasterView::~MasterView()
 {
     delete ui;
-    if (bookEditDialog) {
-        delete bookEditDialog;
+}
+
+void MasterView::setupTableViews()
+{
+    // 图书表格设置
+    ui->BooktableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->BooktableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->BooktableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->BooktableView->setAlternatingRowColors(true);
+
+    // 读者表格设置
+    ui->ReadertableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->ReadertableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->ReadertableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->ReadertableView->setAlternatingRowColors(true);
+
+    // 借阅表格设置
+    ui->BorrowtableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->BorrowtableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->BorrowtableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->BorrowtableView->setAlternatingRowColors(true);
+}
+
+void MasterView::setupDatabaseModels()
+{
+    IDatabase &iDatabase = IDatabase::getInstance();
+
+    // 初始化图书模型
+    if (iDatabase.initBookModel()){
+        ui->BooktableView->setModel(iDatabase.bookTabModel);
+        ui->BooktableView->setSelectionModel(iDatabase.theBookSelection);
     }
-    if (readerEditDialog) {
-        delete readerEditDialog;
+
+    // 初始化读者模型
+    if (iDatabase.initReaderModel()){
+        ui->ReadertableView->setModel(iDatabase.readerTabModel);
+        ui->ReadertableView->setSelectionModel(iDatabase.theReaderSelection);
     }
-    if (borrowedDialog) {
-        delete borrowedDialog;
+
+    // 初始化借阅模型
+    if (iDatabase.initBorrowModel()){
+        ui->BorrowtableView->setModel(iDatabase.borrowTabModel);
+        ui->BorrowtableView->setSelectionModel(iDatabase.theBorrowSelection);
     }
 }
 
@@ -123,52 +123,37 @@ void MasterView::setupConnections()
     connect(ui->btnExitSystem, &QPushButton::clicked, this, &MasterView::on_btnExitSystem_clicked);
 }
 
-// 图书管理按钮点击
+// 导航按钮点击
 void MasterView::on_btnBookManage_clicked()
 {
-    // 切换页面
     ui->stackedWidget->setCurrentIndex(0);
-
-    // 更新按钮选中状态
     ui->btnBookManage->setChecked(true);
     ui->btnReaderManage->setChecked(false);
     ui->btnBorrowManage->setChecked(false);
     ui->btnReportManage->setChecked(false);
 }
 
-// 读者管理按钮点击
 void MasterView::on_btnReaderManage_clicked()
 {
-    // 切换页面
     ui->stackedWidget->setCurrentIndex(1);
-
-    // 更新按钮选中状态
     ui->btnBookManage->setChecked(false);
     ui->btnReaderManage->setChecked(true);
     ui->btnBorrowManage->setChecked(false);
     ui->btnReportManage->setChecked(false);
 }
 
-// 借阅管理按钮点击
 void MasterView::on_btnBorrowManage_clicked()
 {
-    // 切换页面
     ui->stackedWidget->setCurrentIndex(2);
-
-    // 更新按钮选中状态
     ui->btnBookManage->setChecked(false);
     ui->btnReaderManage->setChecked(false);
     ui->btnBorrowManage->setChecked(true);
     ui->btnReportManage->setChecked(false);
 }
 
-// 统计报表按钮点击
 void MasterView::on_btnReportManage_clicked()
 {
-    // 切换页面
     ui->stackedWidget->setCurrentIndex(3);
-
-    // 更新按钮选中状态
     ui->btnBookManage->setChecked(false);
     ui->btnReaderManage->setChecked(false);
     ui->btnBorrowManage->setChecked(false);
@@ -178,86 +163,157 @@ void MasterView::on_btnReportManage_clicked()
 // 添加图书按钮点击
 void MasterView::on_btnBookAdd_clicked()
 {
-    if (!bookEditDialog) {
-        bookEditDialog = new BookEditView(this);
+    qDebug() << "=== 添加图书按钮点击 ===";
+
+    // 检查是否已经有对话框打开
+    if (bookEditDialog != nullptr && bookEditDialog->isVisible()) {
+        qDebug() << "对话框已存在，激活窗口";
+        bookEditDialog->activateWindow();
+        bookEditDialog->raise();
+        return;
     }
 
-    // 设置对话框为添加模式
-    bookEditDialog->setWindowTitle("添加图书");
+    // 如果指针不为空但窗口不可见，删除旧指针
+    if (bookEditDialog != nullptr) {
+        qDebug() << "删除旧的对话框指针";
+        bookEditDialog = nullptr;
+    }
+
+    // 创建新的对话框
+    qDebug() << "创建新的添加图书对话框";
+    bookEditDialog = new BookEditView(this, -1, BookEditView::Add);
+
+    // 设置窗口关闭时自动删除
+    bookEditDialog->setAttribute(Qt::WA_DeleteOnClose);
+
+    // 连接数据更新信号
+    connect(bookEditDialog, &BookEditView::dataUpdated, this, [this]() {
+        qDebug() << "图书数据更新，刷新模型";
+        IDatabase::getInstance().bookTabModel->select();
+    });
+
+    // 连接对话框关闭信号
+    connect(bookEditDialog, &BookEditView::destroyed, this, [this]() {
+        qDebug() << "对话框被销毁";
+        bookEditDialog = nullptr;
+    });
 
     // 显示对话框
     bookEditDialog->show();
     bookEditDialog->raise();
     bookEditDialog->activateWindow();
-
+    qDebug() << "=== 添加图书按钮处理完成 ===";
 }
 
 // 修改图书按钮点击
 void MasterView::on_btnBookModify_clicked()
 {
-    if (!bookEditDialog) {
-        bookEditDialog = new BookEditView(this);
+    qDebug() << "=== 修改图书按钮点击 ===";
+
+    // 检查是否已经有对话框打开
+    if (bookEditDialog != nullptr && bookEditDialog->isVisible()) {
+        qDebug() << "对话框已存在，激活窗口";
+        bookEditDialog->activateWindow();
+        bookEditDialog->raise();
+        return;
     }
 
-    // 设置对话框为修改模式
-    bookEditDialog->setWindowTitle("修改图书");
+    // 检查是否有选中的行
+    if (!IDatabase::getInstance().theBookSelection ||
+        !IDatabase::getInstance().theBookSelection->hasSelection()) {
+        qDebug() << "没有选中的图书";
+        return;
+    }
+
+    // 获取当前选中的行索引
+    QModelIndex currentIndex = IDatabase::getInstance().theBookSelection->currentIndex();
+    if (!currentIndex.isValid()) {
+        qDebug() << "选中的索引无效";
+        return;
+    }
+
+    int currentRow = currentIndex.row();
+    qDebug() << "修改图书，行:" << currentRow;
+
+    // 如果指针不为空但窗口不可见，删除旧指针
+    if (bookEditDialog != nullptr) {
+        qDebug() << "删除旧的对话框指针";
+        bookEditDialog = nullptr;
+    }
+
+    // 创建新的对话框
+    qDebug() << "创建新的修改图书对话框";
+    bookEditDialog = new BookEditView(this, currentRow, BookEditView::Edit);
+
+    // 设置窗口关闭时自动删除
+    bookEditDialog->setAttribute(Qt::WA_DeleteOnClose);
+
+    // 连接数据更新信号
+    connect(bookEditDialog, &BookEditView::dataUpdated, this, [this]() {
+        qDebug() << "图书数据更新，刷新模型";
+        IDatabase::getInstance().bookTabModel->select();
+    });
+
+    // 连接对话框关闭信号
+    connect(bookEditDialog, &BookEditView::destroyed, this, [this]() {
+        qDebug() << "对话框被销毁";
+        bookEditDialog = nullptr;
+    });
 
     // 显示对话框
     bookEditDialog->show();
     bookEditDialog->raise();
     bookEditDialog->activateWindow();
+    qDebug() << "=== 修改图书按钮处理完成 ===";
 }
 
 // 查询图书按钮点击
 void MasterView::on_btnBookQuery_clicked()
 {
-    // 获取搜索文本
     QString searchBookText = ui->BookSearchlineEdit->text().trimmed();
 
     if (searchBookText.isEmpty()) {
-        // 如果搜索框为空，清空过滤器，显示所有图书
         IDatabase::getInstance().bookTabModel->setFilter("");
         IDatabase::getInstance().bookTabModel->select();
         return;
     }
 
-    // 根据图书表字段构建多条件模糊查询
-    // 可以查询：书名、作者、出版社、ISBN、分类
     QString Bookfilter = QString("title LIKE '%%1%' OR "
-                             "author LIKE '%%1%' OR "
-                             "publisher LIKE '%%1%' OR "
-                             "isbn LIKE '%%1%' OR "
-                             "category LIKE '%%1%'")
-                         .arg(searchBookText);
+                                 "author LIKE '%%1%' OR "
+                                 "publisher LIKE '%%1%' OR "
+                                 "isbn LIKE '%%1%' OR "
+                                 "category LIKE '%%1%'")
+                             .arg(searchBookText);
 
-    // 执行查询
     IDatabase::getInstance().queryBook(Bookfilter);
 }
 
 // 删除图书按钮点击
 void MasterView::on_btnBookDelete_clicked()
 {
-    // 获取当前选中的行索引
-    QModelIndex currentBookIndex = IDatabase::getInstance().theBookSelection->currentIndex();
+    if (!IDatabase::getInstance().theBookSelection ||
+        !IDatabase::getInstance().theBookSelection->hasSelection()) {
+        return;
+    }
 
-    // 获取要删除的图书信息（用于提示用户）
-    int Bookrow = currentBookIndex.row();
-    QModelIndex titleIndex = IDatabase::getInstance().bookTabModel->index(Bookrow, 1);  // 第1列是书名
-    QString bookTitle = IDatabase::getInstance().bookTabModel->data(titleIndex).toString();
-    bool deleteSuccessB = IDatabase::getInstance().deleteCurrentBook();
+    IDatabase::getInstance().deleteCurrentBook();
 }
 
 // 添加读者按钮点击
 void MasterView::on_btnReaderAdd_clicked()
 {
+    // 检查是否已经有对话框打开
+    if (readerEditDialog != nullptr && readerEditDialog->isVisible()) {
+        readerEditDialog->activateWindow();
+        readerEditDialog->raise();
+        return;
+    }
+
     if (!readerEditDialog) {
         readerEditDialog = new ReaderEditView(this);
     }
 
-    // 设置对话框为添加模式
     readerEditDialog->setWindowTitle("添加读者");
-
-    // 显示对话框
     readerEditDialog->show();
     readerEditDialog->raise();
     readerEditDialog->activateWindow();
@@ -266,14 +322,18 @@ void MasterView::on_btnReaderAdd_clicked()
 // 修改读者按钮点击
 void MasterView::on_btnReaderModify_clicked()
 {
+    // 检查是否已经有对话框打开
+    if (readerEditDialog != nullptr && readerEditDialog->isVisible()) {
+        readerEditDialog->activateWindow();
+        readerEditDialog->raise();
+        return;
+    }
+
     if (!readerEditDialog) {
         readerEditDialog = new ReaderEditView(this);
     }
 
-    // 设置对话框为修改模式
     readerEditDialog->setWindowTitle("修改读者");
-
-    // 显示对话框
     readerEditDialog->show();
     readerEditDialog->raise();
     readerEditDialog->activateWindow();
@@ -282,53 +342,50 @@ void MasterView::on_btnReaderModify_clicked()
 // 查询读者按钮点击
 void MasterView::on_btnReaderQuery_clicked()
 {
-    // 获取搜索文本
     QString searchReaderText = ui->ReaderSearchlineEdit->text().trimmed();
 
     if (searchReaderText.isEmpty()) {
-        // 如果搜索框为空，清空过滤器，显示所有图书
         IDatabase::getInstance().readerTabModel->setFilter("");
         IDatabase::getInstance().readerTabModel->select();
         return;
     }
 
-    // 根据读者表字段构建多条件模糊查询
-    // 可以查询：读者编号、姓名、电话、邮箱、身份证
     QString Readerfilter = QString("name LIKE '%%1%' OR "
-                             "phone LIKE '%%1%' OR "
-                             "email LIKE '%%1%' OR "
-                             "reader_no LIKE '%%1%' OR "
-                             "id_card LIKE '%%1%'")
-                         .arg(searchReaderText);
+                                   "phone LIKE '%%1%' OR "
+                                   "email LIKE '%%1%' OR "
+                                   "reader_no LIKE '%%1%' OR "
+                                   "id_card LIKE '%%1%'")
+                               .arg(searchReaderText);
 
-    // 执行查询
     IDatabase::getInstance().queryReader(Readerfilter);
 }
 
 // 删除读者按钮点击
 void MasterView::on_btnReaderDelete_clicked()
 {
-    // 获取当前选中的行索引
-    QModelIndex currentReaderIndex = IDatabase::getInstance().theReaderSelection->currentIndex();
+    if (!IDatabase::getInstance().theReaderSelection ||
+        !IDatabase::getInstance().theReaderSelection->hasSelection()) {
+        return;
+    }
 
-    // 获取要删除的读者信息（用于提示用户）
-    int Readerrow = currentReaderIndex.row();
-    QModelIndex nameIndex = IDatabase::getInstance().readerTabModel->index(Readerrow, 1);  // 第1列是姓名
-    QString readerName = IDatabase::getInstance().readerTabModel->data(nameIndex).toString();
-    bool deleteSuccessR = IDatabase::getInstance().deleteCurrentReader();
+    IDatabase::getInstance().deleteCurrentReader();
 }
 
 // 借阅按钮点击
 void MasterView::on_btnBorrowed_clicked()
 {
+    // 检查是否已经有对话框打开
+    if (borrowedDialog != nullptr && borrowedDialog->isVisible()) {
+        borrowedDialog->activateWindow();
+        borrowedDialog->raise();
+        return;
+    }
+
     if (!borrowedDialog) {
         borrowedDialog = new BorrowedView(this);
     }
 
-    // 设置对话框标题
     borrowedDialog->setWindowTitle("借阅信息填写");
-
-    // 显示对话框
     borrowedDialog->show();
     borrowedDialog->raise();
     borrowedDialog->activateWindow();
@@ -337,144 +394,35 @@ void MasterView::on_btnBorrowed_clicked()
 // 查询借阅记录按钮点击
 void MasterView::on_btnBorrowQuery_clicked()
 {
-    // 获取搜索文本
     QString searchBorrowText = ui->BorrowSearchlineEdit->text().trimmed();
 
-    qDebug() << "=== 借阅查询开始 ===";
-    qDebug() << "搜索文本:" << searchBorrowText;
-
     if (searchBorrowText.isEmpty()) {
-        // 如果搜索框为空，显示所有记录
-        qDebug() << "搜索框为空，显示所有借阅记录";
-        bool success = IDatabase::getInstance().queryBorrow("");
-
-        if (success) {
-            int rowCount = IDatabase::getInstance().borrowTabModel->rowCount();
-            qDebug() << "显示所有记录，共" << rowCount << "条";
-        } else {
-            qDebug() << "查询失败";
-        }
-
-        qDebug() << "=== 借阅查询结束 ===";
+        IDatabase::getInstance().borrowTabModel->setFilter("");
+        IDatabase::getInstance().borrowTabModel->select();
         return;
     }
 
-    // 构建查询条件 - 只搜索读者编号和ISBN，这两个是最常用的搜索字段
     QString filter = QString("reader_no LIKE '%%1%' OR isbn LIKE '%%1%'")
                          .arg(searchBorrowText);
 
-    qDebug() << "查询条件:" << filter;
-
-    // 执行查询
-    bool success = IDatabase::getInstance().queryBorrow(filter);
-
-    if (success) {
-        int rowCount = IDatabase::getInstance().borrowTabModel->rowCount();
-        qDebug() << "查询成功，找到" << rowCount << "条记录";
-
-        if (rowCount == 0) {
-            // 如果没有找到，可以尝试按状态搜索
-            qDebug() << "未找到记录，尝试按状态搜索...";
-
-            // 将搜索文本转换为状态值
-            QString statusFilter;
-            if (searchBorrowText.contains("已归还") || searchBorrowText.contains("归还") || searchBorrowText == "1") {
-                statusFilter = "is_returned = 1";
-            } else if (searchBorrowText.contains("未归还") || searchBorrowText == "0") {
-                statusFilter = "is_returned = 0";
-            } else if (searchBorrowText.contains("逾期") || searchBorrowText.contains("过期")) {
-                statusFilter = "is_overdue = 1";
-            }
-
-            if (!statusFilter.isEmpty()) {
-                success = IDatabase::getInstance().queryBorrow(statusFilter);
-                if (success) {
-                    rowCount = IDatabase::getInstance().borrowTabModel->rowCount();
-                    qDebug() << "按状态查询，找到" << rowCount << "条记录";
-                }
-            }
-        }
-    } else {
-        qDebug() << "查询失败";
-    }
-
-    qDebug() << "=== 借阅查询结束 ===";
+    IDatabase::getInstance().queryBorrow(filter);
 }
 
 // 删除借阅记录按钮点击
 void MasterView::on_btnBorrowDelete_clicked()
 {
-    qDebug() << "=== 用户点击删除按钮 ===";
-
-    // 检查选择模型
-    if (!IDatabase::getInstance().theBorrowSelection) {
-        QMessageBox::warning(this, "错误", "选择模型未初始化");
+    if (!IDatabase::getInstance().theBorrowSelection ||
+        !IDatabase::getInstance().theBorrowSelection->hasSelection()) {
         return;
     }
 
-    // 获取当前选中的行索引
-    QModelIndex currentBorrowIndex = IDatabase::getInstance().theBorrowSelection->currentIndex();
-
-    int currentRow = currentBorrowIndex.row();
-    int totalRows = IDatabase::getInstance().borrowTabModel->rowCount();
-
-    qDebug() << "用户选择了第" << currentRow << "行，总行数:" << totalRows;
-
-    // 获取要删除的借阅记录信息
-    QString readerNo = IDatabase::getInstance().borrowTabModel->data(
-                                                                  IDatabase::getInstance().borrowTabModel->index(currentRow, 0)
-                                                                  ).toString();
-
-    QString isbn = IDatabase::getInstance().borrowTabModel->data(
-                                                              IDatabase::getInstance().borrowTabModel->index(currentRow, 1)
-                                                              ).toString();
-
-    QString borrowDate = IDatabase::getInstance().borrowTabModel->data(
-                                                                    IDatabase::getInstance().borrowTabModel->index(currentRow, 2)
-                                                                    ).toString();
-
-    QString dueDate = IDatabase::getInstance().borrowTabModel->data(
-                                                                 IDatabase::getInstance().borrowTabModel->index(currentRow, 3)
-                                                                 ).toString();
-
-    // 检查是否是重复记录
-    bool hasDuplicates = false;
-    for (int i = 0; i < totalRows; i++) {
-        if (i == currentRow) continue;
-
-        QString otherReaderNo = IDatabase::getInstance().borrowTabModel->data(
-                                                                           IDatabase::getInstance().borrowTabModel->index(i, 0)
-                                                                           ).toString();
-
-        QString otherIsbn = IDatabase::getInstance().borrowTabModel->data(
-                                                                       IDatabase::getInstance().borrowTabModel->index(i, 1)
-                                                                       ).toString();
-
-        if (otherReaderNo == readerNo && otherIsbn == isbn) {
-            QString otherBorrowDate = IDatabase::getInstance().borrowTabModel->data(
-                                                                                 IDatabase::getInstance().borrowTabModel->index(i, 2)
-                                                                                 ).toString();
-            qDebug() << "发现重复记录: 行" << i << ", reader_no=" << otherReaderNo
-                     << ", isbn=" << otherIsbn << ", borrow_date=" << otherBorrowDate;
-            hasDuplicates = true;
-        }
-    }
-
-    if (hasDuplicates) {
-        qDebug() << "警告: 存在重复的读者和图书组合";
-    }
-
-
-    // 执行删除操作
-    bool deleteSuccess = IDatabase::getInstance().deleteCurrentBorrow();
-
+    IDatabase::getInstance().deleteCurrentBorrow();
 }
 
 // 归还图书按钮点击
 void MasterView::on_btnBorrowReturn_clicked()
 {
-    // 这里可以添加归还逻辑
-    // 暂时不显示任何提示
+    // 暂时不实现
 }
 
 // 退出系统按钮点击
