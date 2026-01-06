@@ -38,7 +38,7 @@ void BorrowedView::on_btnBorrowedOK_clicked()
 {
     // 获取表单数据
     QString readerNo = ui->lineEditBorrowedReaderNo->text();
-    QString bookId = ui->lineEditBorrowedBookId->text();
+    QString bookId = ui->comboBoxBorrow->currentText();
 
     // 简单的表单验证
     if (readerNo.isEmpty() || bookId.isEmpty()) {

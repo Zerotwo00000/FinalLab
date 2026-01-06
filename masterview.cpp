@@ -338,17 +338,136 @@ void MasterView::on_btnBorrowed_clicked()
 void MasterView::on_btnBorrowQuery_clicked()
 {
     // 获取搜索文本
-    QString searchText = ui->BorrowSearchlineEdit->text();
+    QString searchBorrowText = ui->BorrowSearchlineEdit->text().trimmed();
 
-    // 这里可以添加查询逻辑
-    // 暂时不显示任何提示
+    qDebug() << "=== 借阅查询开始 ===";
+    qDebug() << "搜索文本:" << searchBorrowText;
+
+    if (searchBorrowText.isEmpty()) {
+        // 如果搜索框为空，显示所有记录
+        qDebug() << "搜索框为空，显示所有借阅记录";
+        bool success = IDatabase::getInstance().queryBorrow("");
+
+        if (success) {
+            int rowCount = IDatabase::getInstance().borrowTabModel->rowCount();
+            qDebug() << "显示所有记录，共" << rowCount << "条";
+        } else {
+            qDebug() << "查询失败";
+        }
+
+        qDebug() << "=== 借阅查询结束 ===";
+        return;
+    }
+
+    // 构建查询条件 - 只搜索读者编号和ISBN，这两个是最常用的搜索字段
+    QString filter = QString("reader_no LIKE '%%1%' OR isbn LIKE '%%1%'")
+                         .arg(searchBorrowText);
+
+    qDebug() << "查询条件:" << filter;
+
+    // 执行查询
+    bool success = IDatabase::getInstance().queryBorrow(filter);
+
+    if (success) {
+        int rowCount = IDatabase::getInstance().borrowTabModel->rowCount();
+        qDebug() << "查询成功，找到" << rowCount << "条记录";
+
+        if (rowCount == 0) {
+            // 如果没有找到，可以尝试按状态搜索
+            qDebug() << "未找到记录，尝试按状态搜索...";
+
+            // 将搜索文本转换为状态值
+            QString statusFilter;
+            if (searchBorrowText.contains("已归还") || searchBorrowText.contains("归还") || searchBorrowText == "1") {
+                statusFilter = "is_returned = 1";
+            } else if (searchBorrowText.contains("未归还") || searchBorrowText == "0") {
+                statusFilter = "is_returned = 0";
+            } else if (searchBorrowText.contains("逾期") || searchBorrowText.contains("过期")) {
+                statusFilter = "is_overdue = 1";
+            }
+
+            if (!statusFilter.isEmpty()) {
+                success = IDatabase::getInstance().queryBorrow(statusFilter);
+                if (success) {
+                    rowCount = IDatabase::getInstance().borrowTabModel->rowCount();
+                    qDebug() << "按状态查询，找到" << rowCount << "条记录";
+                }
+            }
+        }
+    } else {
+        qDebug() << "查询失败";
+    }
+
+    qDebug() << "=== 借阅查询结束 ===";
 }
 
 // 删除借阅记录按钮点击
 void MasterView::on_btnBorrowDelete_clicked()
 {
-    // 这里可以添加删除逻辑
-    // 暂时不显示任何提示
+    qDebug() << "=== 用户点击删除按钮 ===";
+
+    // 检查选择模型
+    if (!IDatabase::getInstance().theBorrowSelection) {
+        QMessageBox::warning(this, "错误", "选择模型未初始化");
+        return;
+    }
+
+    // 获取当前选中的行索引
+    QModelIndex currentBorrowIndex = IDatabase::getInstance().theBorrowSelection->currentIndex();
+
+    int currentRow = currentBorrowIndex.row();
+    int totalRows = IDatabase::getInstance().borrowTabModel->rowCount();
+
+    qDebug() << "用户选择了第" << currentRow << "行，总行数:" << totalRows;
+
+    // 获取要删除的借阅记录信息
+    QString readerNo = IDatabase::getInstance().borrowTabModel->data(
+                                                                  IDatabase::getInstance().borrowTabModel->index(currentRow, 0)
+                                                                  ).toString();
+
+    QString isbn = IDatabase::getInstance().borrowTabModel->data(
+                                                              IDatabase::getInstance().borrowTabModel->index(currentRow, 1)
+                                                              ).toString();
+
+    QString borrowDate = IDatabase::getInstance().borrowTabModel->data(
+                                                                    IDatabase::getInstance().borrowTabModel->index(currentRow, 2)
+                                                                    ).toString();
+
+    QString dueDate = IDatabase::getInstance().borrowTabModel->data(
+                                                                 IDatabase::getInstance().borrowTabModel->index(currentRow, 3)
+                                                                 ).toString();
+
+    // 检查是否是重复记录
+    bool hasDuplicates = false;
+    for (int i = 0; i < totalRows; i++) {
+        if (i == currentRow) continue;
+
+        QString otherReaderNo = IDatabase::getInstance().borrowTabModel->data(
+                                                                           IDatabase::getInstance().borrowTabModel->index(i, 0)
+                                                                           ).toString();
+
+        QString otherIsbn = IDatabase::getInstance().borrowTabModel->data(
+                                                                       IDatabase::getInstance().borrowTabModel->index(i, 1)
+                                                                       ).toString();
+
+        if (otherReaderNo == readerNo && otherIsbn == isbn) {
+            QString otherBorrowDate = IDatabase::getInstance().borrowTabModel->data(
+                                                                                 IDatabase::getInstance().borrowTabModel->index(i, 2)
+                                                                                 ).toString();
+            qDebug() << "发现重复记录: 行" << i << ", reader_no=" << otherReaderNo
+                     << ", isbn=" << otherIsbn << ", borrow_date=" << otherBorrowDate;
+            hasDuplicates = true;
+        }
+    }
+
+    if (hasDuplicates) {
+        qDebug() << "警告: 存在重复的读者和图书组合";
+    }
+
+
+    // 执行删除操作
+    bool deleteSuccess = IDatabase::getInstance().deleteCurrentBorrow();
+
 }
 
 // 归还图书按钮点击

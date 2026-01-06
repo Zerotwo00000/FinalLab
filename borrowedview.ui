@@ -137,69 +137,12 @@ QComboBox::down-arrow {
 </string>
        </property>
        <property name="text">
-        <string>ISBN：*</string>
+        <string>选择书籍：</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1" colspan="2">
-      <widget class="QLineEdit" name="lineEditBorrowedBookId">
-       <property name="styleSheet">
-        <string notr="true">QLineEdit, QComboBox {
-    padding: 8px;
-    border: 1px solid #dcdfe6;
-    border-radius: 4px;
-    background-color: white;
-    min-height: 20px;
-}
-
-QLineEdit:focus, QComboBox:focus {
-    border-color: #409eff;
-    outline: none;
-}
-
-QComboBox::drop-down {
-    border: none;
-    width: 20px;
-}
-
-QComboBox::down-arrow {
-    image: none;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 6px solid #666;
-    width: 12px;
-    height: 12px;
-}QLineEdit, QComboBox {
-    padding: 8px;
-    border: 1px solid #dcdfe6;
-    border-radius: 4px;
-    background-color: white;
-    min-height: 20px;
-}
-
-QLineEdit:focus, QComboBox:focus {
-    border-color: #409eff;
-    outline: none;
-}
-
-QComboBox::drop-down {
-    border: none;
-    width: 20px;
-}
-
-QComboBox::down-arrow {
-    image: none;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 6px solid #666;
-    width: 12px;
-    height: 12px;
-}</string>
-       </property>
-       <property name="placeholderText">
-        <string>请输入ISBN号</string>
-       </property>
-      </widget>
+      <widget class="QComboBox" name="comboBoxBorrow"/>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="labelBorrowDate">

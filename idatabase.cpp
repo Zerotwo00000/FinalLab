@@ -203,23 +203,191 @@ void IDatabase::revertReaderEdit()
 
 bool IDatabase::initBorrowModel()
 {
-    borrowTabModel = new QSqlTableModel(this,database);
+    qDebug() << "=== 初始化借阅模型（复合主键版本）===";
+
+    // 检查表是否存在
+    if (!database.tables().contains("borrow_records")) {
+        qDebug() << "错误：borrow_records表不存在";
+        return false;
+    }
+
+    borrowTabModel = new QSqlTableModel(this, database);
     borrowTabModel->setTable("borrow_records");
     borrowTabModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    borrowTabModel->setSort(borrowTabModel->fieldIndex("reader_no"),Qt::AscendingOrder);
+    borrowTabModel->setSort(borrowTabModel->fieldIndex("borrow_date"), Qt::DescendingOrder);
+
+    // 调试输出字段信息
+    QSqlRecord record = borrowTabModel->record();
+    qDebug() << "借阅记录表字段（共" << record.count() << "个）:";
+    for(int i = 0; i < record.count(); i++) {
+        QString fieldName = record.fieldName(i);
+        qDebug() << "字段" << i << ":" << fieldName;
+    }
+
+    // 设置中文表头
     borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("reader_no"), Qt::Horizontal, "读者编号");
     borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("isbn"), Qt::Horizontal, "ISBN");
     borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("borrow_date"), Qt::Horizontal, "借阅日期");
     borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("due_date"), Qt::Horizontal, "应还日期");
     borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("return_date"), Qt::Horizontal, "归还日期");
-    borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("status"), Qt::Horizontal, "状态");
-    borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("is_returned"), Qt::Horizontal, "是否已归还");
+    borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("is_returned"), Qt::Horizontal, "是否归还");
     borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("is_overdue"), Qt::Horizontal, "是否逾期");
     borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("created_at"), Qt::Horizontal, "创建时间");
     borrowTabModel->setHeaderData(borrowTabModel->fieldIndex("updated_at"), Qt::Horizontal, "更新时间");
-    if(!(borrowTabModel->select()))
+
+    if(!borrowTabModel->select()) {
+        qDebug() << "借阅模型查询失败:" << borrowTabModel->lastError().text();
         return false;
+    }
+
+    qDebug() << "借阅模型初始化成功，行数:" << borrowTabModel->rowCount();
 
     theBorrowSelection = new QItemSelectionModel(borrowTabModel);
     return true;
+}
+
+bool IDatabase::queryBorrow(QString filter)
+{
+    if (!borrowTabModel) {
+        qDebug() << "错误：借阅模型为空";
+        return false;
+    }
+
+    qDebug() << "执行借阅查询，条件:" << filter;
+
+    if (filter.isEmpty()) {
+        // 清空过滤器
+        borrowTabModel->setFilter("");
+    } else {
+        // 设置查询过滤器
+        borrowTabModel->setFilter(filter);
+    }
+
+    bool result = borrowTabModel->select();
+
+    if (result) {
+        qDebug() << "查询成功，返回" << borrowTabModel->rowCount() << "条记录";
+    } else {
+        qDebug() << "查询失败:" << borrowTabModel->lastError().text();
+    }
+
+    return result;
+}
+
+bool IDatabase::deleteCurrentBorrow()
+{
+    qDebug() << "=== 开始删除借阅记录 ===";
+
+    // 检查是否有选中的行
+    if (!theBorrowSelection || !theBorrowSelection->hasSelection()) {
+        qDebug() << "没有选中的借阅记录";
+        return false;
+    }
+
+    // 获取当前选中的行
+    QModelIndex currentBorrowIndex = theBorrowSelection->currentIndex();
+    if (!currentBorrowIndex.isValid()) {
+        qDebug() << "选中的索引无效";
+        return false;
+    }
+
+    int currentBorrowRow = currentBorrowIndex.row();
+    qDebug() << "要删除的行号:" << currentBorrowRow;
+
+    // 获取所有字段的值，用于调试
+    qDebug() << "当前行的所有字段值:";
+    for (int i = 0; i < borrowTabModel->columnCount(); i++) {
+        QModelIndex index = borrowTabModel->index(currentBorrowRow, i);
+        QString value = borrowTabModel->data(index).toString();
+        QString fieldName = borrowTabModel->headerData(i, Qt::Horizontal).toString();
+        qDebug() << "  " << fieldName << "[" << i << "]: " << value;
+    }
+
+    // 获取复合主键的三个字段值
+    QModelIndex readerNoIndex = borrowTabModel->index(currentBorrowRow, 0);
+    QModelIndex isbnIndex = borrowTabModel->index(currentBorrowRow, 1);
+    QModelIndex borrowDateIndex = borrowTabModel->index(currentBorrowRow, 2);
+
+    QString readerNo = borrowTabModel->data(readerNoIndex).toString();
+    QString isbn = borrowTabModel->data(isbnIndex).toString();
+    QString borrowDate = borrowTabModel->data(borrowDateIndex).toString();
+
+    qDebug() << "复合主键:";
+    qDebug() << "  reader_no:" << readerNo;
+    qDebug() << "  isbn:" << isbn;
+    qDebug() << "  borrow_date:" << borrowDate;
+
+    if (readerNo.isEmpty() || isbn.isEmpty() || borrowDate.isEmpty()) {
+        qDebug() << "获取复合主键失败";
+        return false;
+    }
+
+    // 检查数据库中符合条件的记录数
+    QSqlQuery checkQuery;
+    checkQuery.prepare("SELECT COUNT(*) FROM borrow_records WHERE reader_no = ? AND isbn = ?");
+    checkQuery.addBindValue(readerNo);
+    checkQuery.addBindValue(isbn);
+
+    if (checkQuery.exec() && checkQuery.next()) {
+        int count = checkQuery.value(0).toInt();
+        qDebug() << "数据库中 reader_no=" << readerNo << ", isbn=" << isbn << " 的记录数:" << count;
+
+        if (count > 1) {
+            qDebug() << "警告: 同一个读者借阅了同一本书多次!";
+        }
+    }
+
+    // 1. 从数据库中删除记录
+    QSqlQuery Borrowquery;
+    Borrowquery.prepare("DELETE FROM borrow_records WHERE reader_no = ? AND isbn = ? AND borrow_date = ?");
+    Borrowquery.addBindValue(readerNo);
+    Borrowquery.addBindValue(isbn);
+    Borrowquery.addBindValue(borrowDate);
+
+    qDebug() << "执行删除SQL: DELETE FROM borrow_records WHERE reader_no = '" << readerNo
+             << "' AND isbn = '" << isbn << "' AND borrow_date = '" << borrowDate << "'";
+
+    if (!Borrowquery.exec()) {
+        qDebug() << "数据库删除失败:" << Borrowquery.lastError().text();
+        return false;
+    }
+
+    int rowsDeleted = Borrowquery.numRowsAffected();
+    qDebug() << "实际删除的行数:" << rowsDeleted;
+
+    if (rowsDeleted > 1) {
+        qDebug() << "错误: 删除了" << rowsDeleted << "行，应该是1行!";
+    }
+
+    // 2. 从模型中删除行
+    if (!borrowTabModel->removeRow(currentBorrowRow)) {
+        qDebug() << "从模型删除行失败:" << borrowTabModel->lastError().text();
+        return false;
+    }
+
+    // 3. 提交更改
+    if (!borrowTabModel->submitAll()) {
+        qDebug() << "提交更改失败:" << borrowTabModel->lastError().text();
+        return false;
+    }
+
+    // 4. 刷新模型
+    if (!borrowTabModel->select()) {
+        qDebug() << "刷新模型失败";
+        return false;
+    }
+
+    qDebug() << "借阅记录删除成功";
+    qDebug() << "=== 删除借阅记录结束 ===";
+    return true;
+}
+
+bool IDatabase::submitBorrowEdit()
+{
+    return borrowTabModel->submitAll();
+}
+
+void IDatabase::revertBorrowEdit()
+{
+    borrowTabModel->revertAll();
 }

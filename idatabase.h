@@ -48,6 +48,10 @@ public:
 
     // 借阅模型
     bool initBorrowModel();
+    bool queryBorrow(QString Borrowfilter);
+    bool deleteCurrentBorrow();
+    bool submitBorrowEdit();
+    void revertBorrowEdit();
     QSqlTableModel *borrowTabModel;
     QItemSelectionModel *theBorrowSelection;
 };
