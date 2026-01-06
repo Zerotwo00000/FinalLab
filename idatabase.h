@@ -30,6 +30,10 @@ signals:
 public:
     // 图书模型
     bool initBookModel();
+    bool queryBook(QString filter);
+    bool deleteCurrentBook();
+    bool submitBookEdit();
+    void revertBookEdit();
     QSqlTableModel *bookTabModel;
     QItemSelectionModel *theBookSelection;
 
