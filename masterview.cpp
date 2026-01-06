@@ -212,9 +212,9 @@ void MasterView::on_btnBookModify_clicked()
 void MasterView::on_btnBookQuery_clicked()
 {
     // 获取搜索文本
-    QString searchText = ui->BookSearchlineEdit->text().trimmed();
+    QString searchBookText = ui->BookSearchlineEdit->text().trimmed();
 
-    if (searchText.isEmpty()) {
+    if (searchBookText.isEmpty()) {
         // 如果搜索框为空，清空过滤器，显示所有图书
         IDatabase::getInstance().bookTabModel->setFilter("");
         IDatabase::getInstance().bookTabModel->select();
@@ -223,32 +223,28 @@ void MasterView::on_btnBookQuery_clicked()
 
     // 根据图书表字段构建多条件模糊查询
     // 可以查询：书名、作者、出版社、ISBN、分类
-    QString filter = QString("title LIKE '%%1%' OR "
+    QString Bookfilter = QString("title LIKE '%%1%' OR "
                              "author LIKE '%%1%' OR "
                              "publisher LIKE '%%1%' OR "
                              "isbn LIKE '%%1%' OR "
                              "category LIKE '%%1%'")
-                         .arg(searchText);
+                         .arg(searchBookText);
 
     // 执行查询
-    IDatabase::getInstance().queryBook(filter);
+    IDatabase::getInstance().queryBook(Bookfilter);
 }
 
 // 删除图书按钮点击
 void MasterView::on_btnBookDelete_clicked()
 {
     // 获取当前选中的行索引
-    QModelIndex currentIndex = IDatabase::getInstance().theBookSelection->currentIndex();
-    if (!currentIndex.isValid()) {
-        qDebug() << "无效的选中索引";
-        return;
-    }
+    QModelIndex currentBookIndex = IDatabase::getInstance().theBookSelection->currentIndex();
 
     // 获取要删除的图书信息（用于提示用户）
-    int row = currentIndex.row();
-    QModelIndex titleIndex = IDatabase::getInstance().bookTabModel->index(row, 1);  // 第1列是书名
+    int Bookrow = currentBookIndex.row();
+    QModelIndex titleIndex = IDatabase::getInstance().bookTabModel->index(Bookrow, 1);  // 第1列是书名
     QString bookTitle = IDatabase::getInstance().bookTabModel->data(titleIndex).toString();
-    bool deleteSuccess = IDatabase::getInstance().deleteCurrentBook();
+    bool deleteSuccessB = IDatabase::getInstance().deleteCurrentBook();
 }
 
 // 添加读者按钮点击
@@ -287,17 +283,39 @@ void MasterView::on_btnReaderModify_clicked()
 void MasterView::on_btnReaderQuery_clicked()
 {
     // 获取搜索文本
-    QString searchText = ui->ReaderSearchlineEdit->text();
+    QString searchReaderText = ui->ReaderSearchlineEdit->text().trimmed();
 
-    // 这里可以添加查询逻辑
-    // 暂时不显示任何提示
+    if (searchReaderText.isEmpty()) {
+        // 如果搜索框为空，清空过滤器，显示所有图书
+        IDatabase::getInstance().readerTabModel->setFilter("");
+        IDatabase::getInstance().readerTabModel->select();
+        return;
+    }
+
+    // 根据读者表字段构建多条件模糊查询
+    // 可以查询：读者编号、姓名、电话、邮箱、身份证
+    QString Readerfilter = QString("name LIKE '%%1%' OR "
+                             "phone LIKE '%%1%' OR "
+                             "email LIKE '%%1%' OR "
+                             "reader_no LIKE '%%1%' OR "
+                             "id_card LIKE '%%1%'")
+                         .arg(searchReaderText);
+
+    // 执行查询
+    IDatabase::getInstance().queryReader(Readerfilter);
 }
 
 // 删除读者按钮点击
 void MasterView::on_btnReaderDelete_clicked()
 {
-    // 这里可以添加删除逻辑
-    // 暂时不显示任何提示
+    // 获取当前选中的行索引
+    QModelIndex currentReaderIndex = IDatabase::getInstance().theReaderSelection->currentIndex();
+
+    // 获取要删除的读者信息（用于提示用户）
+    int Readerrow = currentReaderIndex.row();
+    QModelIndex nameIndex = IDatabase::getInstance().readerTabModel->index(Readerrow, 1);  // 第1列是姓名
+    QString readerName = IDatabase::getInstance().readerTabModel->data(nameIndex).toString();
+    bool deleteSuccessR = IDatabase::getInstance().deleteCurrentReader();
 }
 
 // 借阅按钮点击

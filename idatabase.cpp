@@ -49,30 +49,19 @@ bool IDatabase::queryBook(QString filter)
 // 删除当前选中的图书
 bool IDatabase::deleteCurrentBook()
 {
-    // 检查模型和选择模型是否存在
-    if (!bookTabModel || !theBookSelection) {
-        qDebug() << "模型或选择模型未初始化";
-        return false;
-    }
-
-    // 获取当前选中的行
-    QModelIndex currentIndex = theBookSelection->currentIndex();
 
     // 检查是否有选中的行
-    if (!currentIndex.isValid()) {
-        qDebug() << "没有选中的行";
+    if (!theBookSelection || !theBookSelection->hasSelection()) {
+        qDebug() << "没有选中的图书";
         return false;
     }
+    // 获取当前选中的行
+    QModelIndex currentBookIndex = theBookSelection->currentIndex();
 
     // 获取当前行的ISBN（主键）
-    int currentRow = currentIndex.row();
-    QModelIndex isbnIndex = bookTabModel->index(currentRow, 0);  // 第0列是isbn
+    int currentBookRow = currentBookIndex.row();
+    QModelIndex isbnIndex = bookTabModel->index(currentBookRow, 0);  // 第0列是isbn
     QString isbn = bookTabModel->data(isbnIndex).toString();
-
-    if (isbn.isEmpty()) {
-        qDebug() << "获取ISBN失败";
-        return false;
-    }
 
     // 1. 从数据库中删除记录
     QSqlQuery query;
@@ -85,24 +74,24 @@ bool IDatabase::deleteCurrentBook()
     }
 
     // 2. 从模型中删除行
-    if (!bookTabModel->removeRow(currentRow)) {
+    if (!bookTabModel->removeRow(currentBookRow)) {
         qDebug() << "从模型删除行失败";
         return false;
     }
 
-    // 3. 提交更改到模型
+    // 3. 提交更改
     if (!bookTabModel->submitAll()) {
         qDebug() << "提交更改失败:" << bookTabModel->lastError().text();
         return false;
     }
 
-    // 4. 刷新模型数据
+    // 4. 刷新模型
     if (!bookTabModel->select()) {
         qDebug() << "刷新模型失败";
         return false;
     }
 
-    qDebug() << "成功删除图书，ISBN:" << isbn;
+    qDebug() << "图书删除成功，ISBN:" << isbn;
     return true;
 }
 
@@ -136,6 +125,80 @@ bool IDatabase::initReaderModel()
 
     theReaderSelection = new QItemSelectionModel(readerTabModel);
     return true;
+}
+
+bool IDatabase::queryReader(QString filter)
+{
+    readerTabModel->setFilter(filter);
+    return readerTabModel->select();
+}
+
+
+bool IDatabase::deleteCurrentReader()
+{
+    // 检查是否有选中的行
+    if (!theReaderSelection || !theReaderSelection->hasSelection()) {
+        qDebug() << "没有选中的读者";
+        return false;
+    }
+
+    // 获取当前选中的行
+    QModelIndex currentReaderIndex = theReaderSelection->currentIndex();
+    if (!currentReaderIndex.isValid()) {
+        qDebug() << "选中的索引无效";
+        return false;
+    }
+
+    // 获取当前行的reader_no（主键）
+    int currentReaderRow = currentReaderIndex.row();
+    QModelIndex readernoIndex = readerTabModel->index(currentReaderRow, 0);  // 第0列是reader_no
+    QString readerno = readerTabModel->data(readernoIndex).toString();
+
+    if (readerno.isEmpty()) {
+        qDebug() << "获取读者编号失败";
+        return false;
+    }
+
+    // 1. 从数据库中删除记录
+    QSqlQuery Readerquery;
+    Readerquery.prepare("DELETE FROM readers WHERE reader_no = ?");
+    Readerquery.addBindValue(readerno);
+
+    if (!Readerquery.exec()) {
+        qDebug() << "数据库删除失败:" << Readerquery.lastError().text();
+        return false;
+    }
+
+    // 2. 从模型中删除行
+    if (!readerTabModel->removeRow(currentReaderRow)) {
+        qDebug() << "从模型删除行失败";
+        return false;
+    }
+
+    // 3. 提交更改
+    if (!readerTabModel->submitAll()) {
+        qDebug() << "提交更改失败:" << readerTabModel->lastError().text();
+        return false;
+    }
+
+    // 4. 刷新模型
+    if (!readerTabModel->select()) {
+        qDebug() << "刷新模型失败";
+        return false;
+    }
+
+    qDebug() << "读者删除成功，读者编号:" << readerno;
+    return true;
+}
+
+bool IDatabase::submitReaderEdit()
+{
+    return readerTabModel->submitAll();
+}
+
+void IDatabase::revertReaderEdit()
+{
+    readerTabModel->revertAll();
 }
 
 bool IDatabase::initBorrowModel()

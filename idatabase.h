@@ -30,7 +30,7 @@ signals:
 public:
     // 图书模型
     bool initBookModel();
-    bool queryBook(QString filter);
+    bool queryBook(QString Bookfilter);
     bool deleteCurrentBook();
     bool submitBookEdit();
     void revertBookEdit();
@@ -39,6 +39,10 @@ public:
 
     // 读者模型
     bool initReaderModel();
+    bool queryReader(QString Readerfilter);
+    bool deleteCurrentReader();
+    bool submitReaderEdit();
+    void revertReaderEdit();
     QSqlTableModel *readerTabModel;
     QItemSelectionModel *theReaderSelection;
 
