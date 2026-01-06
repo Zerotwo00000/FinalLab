@@ -302,42 +302,128 @@ void MasterView::on_btnBookDelete_clicked()
 // 添加读者按钮点击
 void MasterView::on_btnReaderAdd_clicked()
 {
+    qDebug() << "=== 添加读者按钮点击 ===";
+
     // 检查是否已经有对话框打开
     if (readerEditDialog != nullptr && readerEditDialog->isVisible()) {
+        qDebug() << "读者对话框已存在，激活窗口";
         readerEditDialog->activateWindow();
         readerEditDialog->raise();
         return;
     }
 
-    if (!readerEditDialog) {
-        readerEditDialog = new ReaderEditView(this);
+    // 如果指针不为空但窗口不可见，删除旧指针
+    if (readerEditDialog != nullptr) {
+        qDebug() << "删除旧的读者对话框指针";
+        readerEditDialog = nullptr;
     }
 
-    readerEditDialog->setWindowTitle("添加读者");
+    // 创建新的对话框
+    qDebug() << "创建新的添加读者对话框";
+    readerEditDialog = new ReaderEditView(this, -1, ReaderEditView::Add);
+
+    // 设置窗口关闭时自动删除
+    readerEditDialog->setAttribute(Qt::WA_DeleteOnClose);
+
+    // 连接数据更新信号
+    connect(readerEditDialog, &ReaderEditView::dataUpdated, this, [this]() {
+        qDebug() << "读者数据更新，刷新模型";
+        IDatabase::getInstance().readerTabModel->select();
+    });
+
+    // 连接对话框关闭信号
+    connect(readerEditDialog, &ReaderEditView::dialogClosed, this, [this]() {
+        qDebug() << "读者对话框关闭信号收到";
+        readerEditDialog = nullptr;
+    });
+
+    // 连接对话框销毁信号
+    connect(readerEditDialog, &ReaderEditView::destroyed, this, [this]() {
+        qDebug() << "读者对话框被销毁";
+        readerEditDialog = nullptr;
+    });
+
+    // 显示对话框
     readerEditDialog->show();
     readerEditDialog->raise();
     readerEditDialog->activateWindow();
+    qDebug() << "=== 添加读者按钮处理完成 ===";
 }
 
 // 修改读者按钮点击
 void MasterView::on_btnReaderModify_clicked()
 {
+    qDebug() << "=== 修改读者按钮点击 ===";
+
     // 检查是否已经有对话框打开
     if (readerEditDialog != nullptr && readerEditDialog->isVisible()) {
+        qDebug() << "读者对话框已存在，激活窗口";
         readerEditDialog->activateWindow();
         readerEditDialog->raise();
         return;
     }
 
-    if (!readerEditDialog) {
-        readerEditDialog = new ReaderEditView(this);
+    // 检查是否有选中的行
+    if (!IDatabase::getInstance().theReaderSelection ||
+        !IDatabase::getInstance().theReaderSelection->hasSelection()) {
+        qDebug() << "没有选中的读者";
+        return;
     }
 
-    readerEditDialog->setWindowTitle("修改读者");
+    // 获取当前选中的行索引
+    QModelIndex currentIndex = IDatabase::getInstance().theReaderSelection->currentIndex();
+    if (!currentIndex.isValid()) {
+        qDebug() << "选中的索引无效";
+        return;
+    }
+
+    int currentRow = currentIndex.row();
+    qDebug() << "修改读者，行:" << currentRow;
+
+    // 获取读者编号用于调试
+    QString readerNo = IDatabase::getInstance().readerTabModel->data(
+                                                                  IDatabase::getInstance().readerTabModel->index(currentRow, 0)
+                                                                  ).toString();
+    qDebug() << "读者编号:" << readerNo;
+
+    // 如果指针不为空但窗口不可见，删除旧指针
+    if (readerEditDialog != nullptr) {
+        qDebug() << "删除旧的读者对话框指针";
+        readerEditDialog = nullptr;
+    }
+
+    // 创建新的对话框
+    qDebug() << "创建新的修改读者对话框";
+    readerEditDialog = new ReaderEditView(this, currentRow, ReaderEditView::Edit);
+
+    // 设置窗口关闭时自动删除
+    readerEditDialog->setAttribute(Qt::WA_DeleteOnClose);
+
+    // 连接数据更新信号
+    connect(readerEditDialog, &ReaderEditView::dataUpdated, this, [this]() {
+        qDebug() << "读者数据更新，刷新模型";
+        IDatabase::getInstance().readerTabModel->select();
+    });
+
+    // 连接对话框关闭信号
+    connect(readerEditDialog, &ReaderEditView::dialogClosed, this, [this]() {
+        qDebug() << "读者对话框关闭信号收到";
+        readerEditDialog = nullptr;
+    });
+
+    // 连接对话框销毁信号
+    connect(readerEditDialog, &ReaderEditView::destroyed, this, [this]() {
+        qDebug() << "读者对话框被销毁";
+        readerEditDialog = nullptr;
+    });
+
+    // 显示对话框
     readerEditDialog->show();
     readerEditDialog->raise();
     readerEditDialog->activateWindow();
+    qDebug() << "=== 修改读者按钮处理完成 ===";
 }
+
 
 // 查询读者按钮点击
 void MasterView::on_btnReaderQuery_clicked()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>422</height>
+    <width>459</width>
+    <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,8 +47,60 @@
      </property>
     </spacer>
    </item>
+   <item row="1" column="2">
+    <spacer name="horizontalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>75</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="1" column="1">
     <layout class="QGridLayout" name="gridLayout">
+     <item row="3" column="0">
+      <widget class="QLabel" name="labelEmail">
+       <property name="text">
+        <string>邮箱：</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="labelIdCard">
+       <property name="text">
+        <string>身份证号：</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QPushButton" name="BtnReaderCancel">
+       <property name="styleSheet">
+        <string notr="true">QPushButton#BtnReaderCancel {
+    background-color: #909399;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-weight: 500;
+}
+
+QPushButton#pushButtonCancel:hover {
+    background-color: #a6a9ad;
+}
+
+QPushButton#pushButtonCancel:pressed {
+    background-color: #82848a;
+}</string>
+       </property>
+       <property name="text">
+        <string>取消</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="labelReaderNo">
        <property name="text">
@@ -56,8 +108,69 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1" colspan="3">
-      <widget class="QLineEdit" name="lineEditName">
+     <item row="7" column="1" colspan="3">
+      <widget class="QComboBox" name="comboBoxStatus">
+       <item>
+        <property name="text">
+         <string>正常</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>冻结</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>挂失</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="6" column="0" colspan="2">
+      <widget class="QLabel" name="labelCurrentBorrowed">
+       <property name="text">
+        <string>当前借书数量：</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2" colspan="2">
+      <widget class="QSpinBox" name="spinBoxMaxBorrowLimit">
+       <property name="suffix">
+        <string>本</string>
+       </property>
+       <property name="value">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="3">
+      <widget class="QPushButton" name="BtnReaderOk">
+       <property name="styleSheet">
+        <string notr="true">QPushButton#BtnReaderOk {
+    background-color: #409eff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-weight: 500;
+}
+
+QPushButton#pushButtonOk:hover {
+    background-color: #66b1ff;
+}
+
+QPushButton#pushButtonOk:pressed {
+    background-color: #3a8ee6;
+}</string>
+       </property>
+       <property name="text">
+        <string>确定</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" colspan="3">
+      <widget class="QLineEdit" name="lineEditIdCard">
        <property name="styleSheet">
         <string notr="true">QLineEdit, QComboBox {
     padding: 8px;
@@ -87,28 +200,37 @@ QComboBox::down-arrow {
 }</string>
        </property>
        <property name="placeholderText">
-        <string>请输入读者姓名</string>
+        <string>请输入身份证号码</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labelPhone">
+     <item row="7" column="0">
+      <widget class="QLabel" name="labelStatus">
        <property name="text">
-        <string>电话：</string>
+        <string>状态：</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelName">
-       <property name="text">
-        <string>姓名：*</string>
+     <item row="8" column="1" colspan="2">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
-     <item row="5" column="0" colspan="2">
-      <widget class="QLabel" name="labelMaxBorrowLimit">
-       <property name="text">
-        <string>最大借书限制：</string>
+     <item row="6" column="2" colspan="2">
+      <widget class="QSpinBox" name="spinBoxCurrentBorrowed">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="suffix">
+        <string>本</string>
        </property>
       </widget>
      </item>
@@ -147,38 +269,6 @@ QComboBox::down-arrow {
        </property>
       </widget>
      </item>
-     <item row="8" column="3">
-      <widget class="QPushButton" name="BtnReaderOk">
-       <property name="styleSheet">
-        <string notr="true">QPushButton#BtnReaderOk {
-    background-color: #409eff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 20px;
-    font-weight: 500;
-}
-
-QPushButton#pushButtonOk:hover {
-    background-color: #66b1ff;
-}
-
-QPushButton#pushButtonOk:pressed {
-    background-color: #3a8ee6;
-}</string>
-       </property>
-       <property name="text">
-        <string>确定</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="labelIdCard">
-       <property name="text">
-        <string>身份证号：</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1" colspan="3">
       <widget class="QLineEdit" name="lineEditReaderNo">
        <property name="styleSheet">
@@ -214,41 +304,29 @@ QComboBox::down-arrow {
        </property>
       </widget>
      </item>
-     <item row="6" column="0" colspan="2">
-      <widget class="QLabel" name="labelCurrentBorrowed">
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelName">
        <property name="text">
-        <string>当前借书数量：</string>
+        <string>姓名：*</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="labelEmail">
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelPhone">
        <property name="text">
-        <string>邮箱：</string>
+        <string>电话：</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="1" colspan="3">
-      <widget class="QComboBox" name="comboBoxStatus">
-       <item>
-        <property name="text">
-         <string>正常</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>冻结</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>挂失</string>
-        </property>
-       </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QLabel" name="labelMaxBorrowLimit">
+       <property name="text">
+        <string>最大借书限制：</string>
+       </property>
       </widget>
      </item>
-     <item row="4" column="1" colspan="3">
-      <widget class="QLineEdit" name="lineEditIdCard">
+     <item row="1" column="1" colspan="3">
+      <widget class="QLineEdit" name="lineEditName">
        <property name="styleSheet">
         <string notr="true">QLineEdit, QComboBox {
     padding: 8px;
@@ -278,72 +356,7 @@ QComboBox::down-arrow {
 }</string>
        </property>
        <property name="placeholderText">
-        <string>请输入身份证号码</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2" colspan="2">
-      <widget class="QSpinBox" name="spinBoxMaxBorrowLimit">
-       <property name="suffix">
-        <string>本</string>
-       </property>
-       <property name="value">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1" colspan="2">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="8" column="0">
-      <widget class="QPushButton" name="BtnReaderCancel">
-       <property name="styleSheet">
-        <string notr="true">QPushButton#BtnReaderCancel {
-    background-color: #909399;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 20px;
-    font-weight: 500;
-}
-
-QPushButton#pushButtonCancel:hover {
-    background-color: #a6a9ad;
-}
-
-QPushButton#pushButtonCancel:pressed {
-    background-color: #82848a;
-}</string>
-       </property>
-       <property name="text">
-        <string>取消</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="2" colspan="2">
-      <widget class="QSpinBox" name="spinBoxCurrentBorrowed">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="suffix">
-        <string>本</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="labelStatus">
-       <property name="text">
-        <string>状态：</string>
+        <string>请输入读者姓名</string>
        </property>
       </widget>
      </item>
@@ -383,19 +396,6 @@ QComboBox::down-arrow {
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="1" column="2">
-    <spacer name="horizontalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>75</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item row="2" column="1">
     <spacer name="verticalSpacer">
