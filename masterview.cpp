@@ -5,6 +5,7 @@
 #include "borrowedview.h"
 #include "idatabase.h"
 #include <QDebug>
+#include <QMessageBox>
 
 MasterView::MasterView(QWidget *parent)
     : QMainWindow(parent)
@@ -467,9 +468,29 @@ void MasterView::on_btnBorrowed_clicked()
         return;
     }
 
-    if (!borrowedDialog) {
-        borrowedDialog = new BorrowedView(this);
+    if (borrowedDialog) {
+        delete borrowedDialog;
     }
+
+    borrowedDialog = new BorrowedView(this);
+
+    // 连接数据更新信号
+    connect(borrowedDialog, &BorrowedView::dataUpdated, this, [this]() {
+        // 刷新所有模型
+        IDatabase::getInstance().borrowTabModel->select();
+        IDatabase::getInstance().bookTabModel->select();
+        IDatabase::getInstance().readerTabModel->select();
+    });
+
+    // 连接对话框关闭信号
+    connect(borrowedDialog, &BorrowedView::dialogClosed, this, [this]() {
+        borrowedDialog = nullptr;
+    });
+
+    // 连接销毁信号
+    connect(borrowedDialog, &BorrowedView::destroyed, this, [this]() {
+        borrowedDialog = nullptr;
+    });
 
     borrowedDialog->setWindowTitle("借阅信息填写");
     borrowedDialog->show();
@@ -508,7 +529,164 @@ void MasterView::on_btnBorrowDelete_clicked()
 // 归还图书按钮点击
 void MasterView::on_btnBorrowReturn_clicked()
 {
-    // 暂时不实现
+    // 检查是否有选中的行
+    if (!IDatabase::getInstance().theBorrowSelection ||
+        !IDatabase::getInstance().theBorrowSelection->hasSelection()) {
+        QMessageBox::warning(this, "提示", "请先选择要归还的借阅记录！");
+        return;
+    }
+
+    QModelIndex currentIndex = IDatabase::getInstance().theBorrowSelection->currentIndex();
+    if (!currentIndex.isValid()) {
+        QMessageBox::warning(this, "错误", "选中的索引无效！");
+        return;
+    }
+
+    int currentRow = currentIndex.row();
+
+    // 获取借阅记录信息
+    QString readerNo = IDatabase::getInstance().borrowTabModel->data(
+                                                                  IDatabase::getInstance().borrowTabModel->index(currentRow, 0)
+                                                                  ).toString();
+
+    QString isbn = IDatabase::getInstance().borrowTabModel->data(
+                                                              IDatabase::getInstance().borrowTabModel->index(currentRow, 1)
+                                                              ).toString();
+
+    QString borrowDate = IDatabase::getInstance().borrowTabModel->data(
+                                                                    IDatabase::getInstance().borrowTabModel->index(currentRow, 2)
+                                                                    ).toString();
+
+    // 检查是否已归还
+    int isReturned = IDatabase::getInstance().borrowTabModel->data(
+                                                                IDatabase::getInstance().borrowTabModel->index(currentRow, 5)
+                                                                ).toInt();
+
+    if (isReturned == 1) {
+        QMessageBox::information(this, "提示", "该书籍已归还！");
+        return;
+    }
+
+    // 获取书籍名称用于显示
+    QSqlQuery bookQuery;
+    bookQuery.prepare("SELECT title FROM books WHERE isbn = ?");
+    bookQuery.addBindValue(isbn);
+    QString bookTitle = "未知书籍";
+    if (bookQuery.exec() && bookQuery.next()) {
+        bookTitle = bookQuery.value(0).toString();
+    }
+
+    // 获取读者姓名
+    QSqlQuery readerQuery;
+    readerQuery.prepare("SELECT name FROM readers WHERE reader_no = ?");
+    readerQuery.addBindValue(readerNo);
+    QString readerName = "未知读者";
+    if (readerQuery.exec() && readerQuery.next()) {
+        readerName = readerQuery.value(0).toString();
+    }
+
+    // 确认归还
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "确认归还",
+                                  QString("确定要归还以下借阅记录吗？\n\n"
+                                          "读者：%1 (%2)\n"
+                                          "书籍：%3 (%4)\n"
+                                          "借阅日期：%5")
+                                      .arg(readerName, readerNo, bookTitle, isbn, borrowDate),
+                                  QMessageBox::Yes | QMessageBox::No);
+
+    if (reply != QMessageBox::Yes) {
+        return;
+    }
+
+    // 开始事务
+    QSqlDatabase db = QSqlDatabase::database();
+    if (!db.transaction()) {
+        QMessageBox::warning(this, "错误", "开始事务失败！");
+        return;
+    }
+
+    try {
+        // 更新借阅记录，设置归还日期
+        QSqlQuery updateQuery;
+        updateQuery.prepare(
+            "UPDATE borrow_records SET "
+            "return_date = DATE('now'), "
+            "is_returned = 1, "
+            "updated_at = CURRENT_TIMESTAMP "
+            "WHERE reader_no = ? AND isbn = ? AND borrow_date = ? AND is_returned = 0"
+            );
+        updateQuery.addBindValue(readerNo);
+        updateQuery.addBindValue(isbn);
+        updateQuery.addBindValue(borrowDate);
+
+        if (!updateQuery.exec()) {
+            db.rollback();
+            QMessageBox::warning(this, "错误", QString("更新借阅记录失败：%1").arg(updateQuery.lastError().text()));
+            return;
+        }
+
+        int rowsAffected = updateQuery.numRowsAffected();
+        if (rowsAffected == 0) {
+            db.rollback();
+            QMessageBox::warning(this, "错误", "更新失败，可能是记录已被归还！");
+            return;
+        }
+
+        // 提交事务
+        if (!db.commit()) {
+            QMessageBox::warning(this, "错误", "提交事务失败！");
+            db.rollback();
+            return;
+        }
+
+        QMessageBox::information(this, "成功", "归还成功！");
+
+        // 刷新模型
+        IDatabase::getInstance().borrowTabModel->select();
+        IDatabase::getInstance().bookTabModel->select();
+        IDatabase::getInstance().readerTabModel->select();
+
+        // 检查是否逾期
+        checkOverdueAlert(readerNo, isbn, borrowDate);
+
+    } catch (...) {
+        db.rollback();
+        QMessageBox::warning(this, "错误", "归还过程中发生异常！");
+    }
+}
+
+// 检查逾期提醒
+void MasterView::checkOverdueAlert(const QString& readerNo, const QString& isbn, const QString& borrowDate)
+{
+    QSqlQuery query;
+    query.prepare(
+        "SELECT is_overdue, due_date, return_date "
+        "FROM borrow_records "
+        "WHERE reader_no = ? AND isbn = ? AND borrow_date = ?"
+        );
+    query.addBindValue(readerNo);
+    query.addBindValue(isbn);
+    query.addBindValue(borrowDate);
+
+    if (query.exec() && query.next()) {
+        int isOverdue = query.value(0).toInt();
+        QDate dueDate = QDate::fromString(query.value(1).toString(), "yyyy-MM-dd");
+        QDate returnDate = QDate::fromString(query.value(2).toString(), "yyyy-MM-dd");
+
+        if (isOverdue == 1) {
+            int overdueDays = dueDate.daysTo(returnDate);
+            QString message = QString("注意：本次借阅已逾期！\n\n"
+                                      "应还日期：%1\n"
+                                      "归还日期：%2\n"
+                                      "逾期天数：%3天")
+                                  .arg(dueDate.toString("yyyy-MM-dd"),
+                                       returnDate.toString("yyyy-MM-dd"))
+                                  .arg(overdueDays);
+
+            QMessageBox::warning(this, "逾期提醒", message);
+        }
+    }
 }
 
 // 退出系统按钮点击

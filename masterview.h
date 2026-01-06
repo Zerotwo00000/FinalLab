@@ -61,6 +61,9 @@ private:
     void setupConnections();   // 设置信号槽连接
     void setupTableViews();    // 设置表格视图属性
     void setupDatabaseModels(); // 设置数据库模型
+
+    // 添加逾期检查函数
+    void checkOverdueAlert(const QString& readerNo, const QString& isbn, const QString& borrowDate);
 };
 
 #endif // MASTERVIEW_H
